@@ -2396,7 +2396,7 @@
                 let tableHTMLContent = `<div class="table-scroll-wrapper"><table id="data-table-${typeKey}"><thead><tr>`;
                 if (itemConfig.isSticker) tableHTMLContent += `<th class="col-name">角色/种类</th><th class="col-status">状态</th><th class="col-value">均价</th><th class="col-value">调价 <span id="调价提醒-${typeKey}" class="warning-text"></span></th><th class="col-value">终价</th><th class="col-distribution">排表</th><th class="col-value">余量</th><th class="col-operation">操作</th>`;
                 else if (typeKey === 'bonus') tableHTMLContent += `<th class="col-name">档次</th><th class="col-name">种类</th><th class="col-value">价值</th><th class="col-value">调价 <span id="调价提醒-${typeKey}" class="warning-text"></span></th><th class="col-value">终价</th><th class="col-distribution">排表</th><th class="col-value">余量</th><th class="col-operation">操作</th>`;
-                else if (typeKey === 'single') tableHTMLContent += `<th class="col-name">种类</th><th class="col-value">原价</th><th class="col-value">折后价</th><th class="col-distribution">排表</th><th class="col-operation">操作</th>`;
+                else if (typeKey === 'single') tableHTMLContent += `<th class="col-name">角色</th><th class="col-name">种类</th><th class="col-value">原价</th><th class="col-value">折后价</th><th class="col-distribution">排表</th><th class="col-operation">操作</th>`;
                 else tableHTMLContent += `<th class="col-name">角色</th><th class="col-value">均价</th><th class="col-value">调价 <span id="调价提醒-${typeKey}" class="warning-text"></span></th><th class="col-value">终价</th><th class="col-distribution">排表</th><th class="col-value">余量</th>`;
 
                 tableHTMLContent += `</tr></thead><tbody></tbody></table></div>`;
@@ -2480,7 +2480,7 @@
                 const isCurrentlySplittable = (parseInt(data.splitCount || 1) === 1);
                 rowHTML = `<td class="col-name"><input type="text" data-type="kind" value="${data.tier || ''}" readonly></td><td class="col-name"><input type="text" class="custom-kind" placeholder="自定义种类名..." value="${data.customKind || ''}"></td><td class="col-value"><input type="number" data-type="price" value="${data.priceForDisplay || '0.00'}" readonly></td><td class="col-value"><input type="number" class="adj-price" value="${data.adjPrice || 0}" oninput="updateRowPrice('${typeKey}', this)"></td><td class="col-value final-price">0.00</td><td ${distributionCellClass}>${distCellContent(data.distribution)}</td><td class="col-value remaining-quantity">N/A</td><td class="col-operation">${isCurrentlySplittable ? `<button class="split-btn" onclick="splitBonusRow(this, '${typeKey}')">拆分</button>` : ''}<button type="button" class="remove-btn-text" onclick="this.closest('tr').remove();">×</button></td>`;
             } else if (typeKey === 'single') {
-                rowHTML = `<td class="col-name"><input type="text" data-type="kind" value="${data.kind || ''}"></td><td class="col-value"><input type="number" data-type="price" value="${data.price || 0}"></td><td class="col-value final-price">0.00</td><td ${distributionCellClass}>${distCellContent(data.distribution)}</td><td class="col-operation"><button type="button" class="remove-btn-text" onclick="this.parentElement.parentElement.remove();">×</button></td>`;
+                rowHTML = `<td class="col-name"><input type="text" placeholder="角色名..." value="${data.charName || ''}"></td><td class="col-name"><input type="text" data-type="kind" value="${data.kind || ''}"></td><td class="col-value"><input type="number" data-type="price" value="${data.price || 0}"></td><td class="col-value final-price">0.00</td><td ${distributionCellClass}>${distCellContent(data.distribution)}</td><td class="col-operation"><button type="button" class="remove-btn-text" onclick="this.parentElement.parentElement.remove();">×</button></td>`;
             } else {
                 rowHTML = `<td class="col-name"><input type="text" placeholder="角色名..." value="${data.charName || ''}"></td><td class="col-value avg-price">0.00</td><td class="col-value"><input type="number" class="adj-price" value="${data.adjPrice || 0}" oninput="updateRowPrice('${typeKey}', this)"></td><td class="col-value final-price">0.00</td><td ${distributionCellClass}>${distCellContent(data.distribution)}</td><td class="col-value remaining-quantity">N/A</td>`;
             }
@@ -2498,7 +2498,19 @@
         }
 
         function addDefaultSingleItems() {
-            const defaultItems = [{ kind: '[角色1]皮肤吧唧', price: 20 }, { kind: '[角色2]皮肤吧唧', price: 20 }, { kind: '[角色3]皮肤吧唧', price: 20 }, { kind: '[角色1]精一立牌', price: 50 }, { kind: '[角色2]精一立牌', price: 50 }, { kind: '[角色3]精一立牌', price: 50 }, { kind: '[角色1]吧唧组', price: 30 }, { kind: '[角色2]吧唧组', price: 30 }, { kind: '[角色3]吧唧组', price: 30 }, { kind: '[角色1]皮肤挂件', price: 35 }, { kind: '[角色2]皮肤挂件', price: 35 }];
+            const defaultItems = [
+                { charName: '', kind: '皮肤吧唧', price: 20 },
+                { charName: '', kind: '皮肤吧唧', price: 20 },
+                { charName: '', kind: '皮肤吧唧', price: 20 },
+                { charName: '', kind: '精一立牌', price: 50 },
+                { charName: '', kind: '精一立牌', price: 50 },
+                { charName: '', kind: '精一立牌', price: 50 },
+                { charName: '', kind: '吧唧组', price: 30 },
+                { charName: '', kind: '吧唧组', price: 30 },
+                { charName: '', kind: '吧唧组', price: 30 },
+                { charName: '', kind: '皮肤挂件', price: 35 },
+                { charName: '', kind: '皮肤挂件', price: 35 }
+            ];
             const tableBody = document.querySelector('#data-table-single tbody');
             if (!tableBody) return;
             tableBody.innerHTML = '';
@@ -2507,6 +2519,7 @@
                 populateTableRow(newRow, 'single', index, item);
             });
         }
+
 
         function handleDistroInput(event, typeKey) {
             if (event.key === 'Enter') {
@@ -2734,7 +2747,11 @@
                     const currentItemNameFromConfig = inputs[typeKey] ? inputs[typeKey].name : itemConfig.key;
 
                     if (typeKey === 'single') {
-                        itemName = row.querySelector('input[data-type="kind"]').value;
+                        const charNameInput = row.querySelector('input[placeholder="角色名..."]');
+                        const charName = charNameInput ? charNameInput.value.trim() : '';
+                        const kindInput = row.querySelector('input[data-type="kind"]');
+                        const kind = kindInput ? kindInput.value.trim() : '';
+                        itemName = charName ? `${charName}-${kind}` : kind;
                     } else if (typeKey === 'bonus') {
                         const tierName = row.querySelector('input[data-type="kind"]').value;
                         const customName = row.querySelector('.custom-kind').value;
@@ -3358,20 +3375,31 @@
         }
         let allCharacterNames = new Set();
         let allMemberNames = new Set();
+        let allKindNames = new Set();
 
         function updateNameCaches() {
             allCharacterNames.clear();
             allMemberNames.clear();
+            allKindNames.clear();
 
+            // 扫描所有角色名输入框
             document.querySelectorAll('input[placeholder="角色名..."]').forEach(input => {
                 if (input.value.trim()) {
                     allCharacterNames.add(input.value.trim());
                 }
             });
 
+            // 扫描所有团员名输入框
             document.querySelectorAll('input.dist-name').forEach(input => {
                 if (input.value.trim()) {
                     allMemberNames.add(input.value.trim());
+                }
+            });
+
+            // 扫描所有种类输入框（单领表格中的）
+            document.querySelectorAll('#data-table-single input[data-type="kind"]').forEach(input => {
+                if (input.value.trim()) {
+                    allKindNames.add(input.value.trim());
                 }
             });
         }
@@ -3464,6 +3492,8 @@
                     nameSet = allCharacterNames;
                 } else if (target.matches('input.dist-name')) {
                     nameSet = allMemberNames;
+                } else if (target.matches('#data-table-single input[data-type="kind"]')) { // 新增：单领表格的种类输入框
+                    nameSet = allKindNames;
                 }
 
                 if (nameSet) {
@@ -3473,6 +3503,7 @@
                 }
             });
 
+
             document.addEventListener('input', (e) => {
                 if (e.target === activeSuggestionInput) {
                     let nameSet = null;
@@ -3480,12 +3511,15 @@
                         nameSet = allCharacterNames;
                     } else if (e.target.matches('input.dist-name')) {
                         nameSet = allMemberNames;
+                    } else if (e.target.matches('#data-table-single input[data-type="kind"]')) { // 新增：单领表格的种类输入框
+                        nameSet = allKindNames;
                     }
                     if (nameSet) {
                         showSuggestions(e.target, nameSet, e.target.value);
                     }
                 }
             });
+
 
             document.addEventListener('click', (e) => {
                 if (e.target !== activeSuggestionInput && !suggestionBox.contains(e.target)) {
@@ -3494,14 +3528,17 @@
             });
 
             document.addEventListener('blur', (e) => {
-                if (e.target.matches('input[placeholder="角色名..."]') || e.target.matches('input.dist-name')) {
+                if (e.target.matches('input[placeholder="角色名..."]') ||
+                    e.target.matches('input.dist-name') ||
+                    e.target.matches('#data-table-single input[data-type="kind"]')) { // 新增：单领表格的种类输入框
                     updateNameCaches();
                 }
             }, true);
 
+
             document.addEventListener('keydown', handleKeyDown);
 
-            // 新增：监听滚动和窗口大小变化事件
+            // 监听滚动和窗口大小变化事件
             const updatePositionOnScrollOrResize = () => {
                 if (suggestionBox.style.display === 'block') {
                     repositionSuggestionBox();
@@ -3526,7 +3563,7 @@
             Object.keys(itemTypes).forEach(typeKey => {
                 const itemConfig = itemTypes[typeKey];
 
-                // 修改点：只跳过'single'，因为它没有余量概念，让'bonus'可以被处理
+                // 只跳过'single'，因为它没有余量概念
                 if (typeKey === 'single') return;
 
                 const table = document.getElementById(`data-table-${typeKey}`);
@@ -3547,6 +3584,10 @@
                     const remainingNum = parseFloat(remainingValue);
                     if (isNaN(remainingNum) || remainingNum === 0) return; // 只显示非零余量
 
+                    // 获取价格信息
+                    const finalPriceCell = row.querySelector('.final-price');
+                    const price = finalPriceCell ? (parseFloat(finalPriceCell.textContent) || 0) : 0;
+
                     let itemIdentifier = '';
 
                     if (typeKey === 'bonus') {
@@ -3555,7 +3596,6 @@
                         const tierText = tierInput ? tierInput.value : '未知特典';
                         itemIdentifier = customKind ? `${tierText} - ${customKind}` : tierText;
                     } else if (typeKey === 'single') {
-                        // 这段逻辑现在不会被执行，但保留以防万一
                         const kindInput = row.querySelector('input[data-type="kind"]');
                         itemIdentifier = kindInput ? kindInput.value : '未知种类';
                     } else {
@@ -3565,6 +3605,7 @@
 
                     remainingData[currentItemName].push({
                         name: itemIdentifier,
+                        price: price,
                         remaining: remainingNum
                     });
                 });
@@ -3582,8 +3623,11 @@
                 html += `<div class="calc-section" style="margin-bottom: 20px;">`;
                 html += `<h3 style="margin-top: 0;">${itemTypeName}</h3>`;
                 html += `<table style="width: 100%; border-collapse: collapse; margin-top: 10px;">`;
-                html += `<thead><tr><th style="text-align: left; padding: 8px; background-color: var(--highlight-bg); border: 1px solid var(--border-color);">项目</th>`;
-                html += `<th style="text-align: center; padding: 8px; background-color: var(--highlight-bg); border: 1px solid var(--border-color); width: 100px;">余量</th></tr></thead>`;
+                html += `<thead><tr>`;
+                html += `<th style="text-align: left; padding: 8px; background-color: var(--highlight-bg); border: 1px solid var(--border-color);">项目</th>`;
+                html += `<th style="text-align: center; padding: 8px; background-color: var(--highlight-bg); border: 1px solid var(--border-color); width: 100px;">价格</th>`;
+                html += `<th style="text-align: center; padding: 8px; background-color: var(--highlight-bg); border: 1px solid var(--border-color); width: 100px;">余量</th>`;
+                html += `</tr></thead>`;
                 html += `<tbody>`;
 
                 items.forEach(item => {
@@ -3591,6 +3635,7 @@
                         item.remaining < 0 ? 'style="color: var(--accent-color); font-weight: bold;"' : '';
                     html += `<tr>`;
                     html += `<td style="padding: 8px; border: 1px solid var(--border-color);">${item.name}</td>`;
+                    html += `<td style="text-align: center; padding: 8px; border: 1px solid var(--border-color);">${item.price.toFixed(2)}</td>`;
                     html += `<td style="text-align: center; padding: 8px; border: 1px solid var(--border-color);" ${remainingClass}>${item.remaining}</td>`;
                     html += `</tr>`;
                 });
@@ -3604,6 +3649,7 @@
 
             outputDiv.innerHTML = html;
         }
+
 
         function copyToClipboard(elementId, buttonElement) {
             const element = document.getElementById(elementId);
