@@ -652,6 +652,34 @@
         .qr-delete-button:hover {
             background-color: var(--accent-hover-color);
         }
+
+        /* Autocomplete Suggestions Box Styles */
+        #autocomplete-suggestions {
+            display: none;
+            position: fixed;
+            /* 使用固定定位，不受父元素影响 */
+            border: 1px solid var(--border-color);
+            background-color: var(--card-bg);
+            z-index: 1002;
+            /* 确保它在最顶层 */
+            max-height: 150px;
+            overflow-y: auto;
+            box-shadow: var(--shadow);
+            border-radius: var(--border-radius);
+        }
+
+        .suggestion-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            color: var(--text-color);
+            font-size: 0.9em;
+        }
+
+        .suggestion-item:hover,
+        .suggestion-item.active {
+            background-color: var(--highlight-bg);
+            color: var(--secondary-color);
+        }
     </style>
 </head>
 
@@ -3376,8 +3404,9 @@
                 });
 
                 const rect = inputElement.getBoundingClientRect();
-                suggestionBox.style.left = `${rect.left + window.scrollX}px`;
-                suggestionBox.style.top = `${rect.bottom + window.scrollY}px`;
+                // 因为使用了 position:fixed，定位逻辑直接使用 getBoundingClientRect 的结果
+                suggestionBox.style.left = `${rect.left}px`;
+                suggestionBox.style.top = `${rect.bottom}px`;
                 suggestionBox.style.width = `${rect.width}px`;
                 suggestionBox.style.display = 'block';
                 activeSuggestionIndex = -1;
@@ -3448,7 +3477,7 @@
                         nameSet = allMemberNames;
                     }
                     if (nameSet) {
-                        showSuggestions(e.target, nameSet, e.target.value);
+                        showSuggestions(e.target, e.target.value);
                     }
                 }
             });
@@ -3467,6 +3496,8 @@
 
             document.addEventListener('keydown', handleKeyDown);
         }
+
+
         function updateRemainingTable() {
             const outputDiv = document.getElementById('remaining-output');
             const inputs = getInputs();
