@@ -1,0 +1,3744 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>开谷集成一体机v1.2</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap');
+
+        :root {
+            /* 色彩搭配 */
+            --bg-color: #f6f6ff;
+            --card-bg: #ffffff;
+            --primary-color: #747fdb;
+            /* 主色调 (中等蓝紫色) */
+            --primary-hover-color: #5f69c3;
+            /* 主色调悬浮 */
+            --secondary-color: #2029b6;
+            /* 辅色/强调色 (亮蓝色) */
+            --accent-color: #c72729;
+            /* 警示/危险色 (红色) */
+            --accent-hover-color: #a32022;
+            /* 警示色悬浮 */
+            --success-color: #2029b6;
+            /* 成功/添加色 (同辅色) */
+            --success-hover-color: #1a218f;
+            /* 成功色悬浮 */
+            --text-color: #1a1a2c;
+            /* 主要文字颜色 */
+            --light-text-color: #667085;
+            /* 次要文字颜色 */
+            --border-color: #e1e1ed;
+            /* 边框颜色 */
+            --highlight-bg: #e1e1ed;
+            /* 高亮区域背景色 */
+            --button-alt-bg: #a5adde;
+            /* 备用按钮背景色 */
+            --button-alt-hover-bg: #8c96c4;
+            /* 备用按钮悬浮 */
+
+            /* 设计风格 */
+            --shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            --border-radius: 0px;
+            /* 直角设计核心 */
+        }
+
+        body {
+            font-family: 'Nunito', 'Microsoft YaHei', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1300px;
+        }
+
+        h1,
+        h2 {
+            color: var(--secondary-color);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+        }
+
+        h2 {
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            margin-top: 40px;
+        }
+
+        h3 {
+            color: var(--primary-color);
+            border-left: 4px solid var(--primary-color);
+            padding-left: 10px;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .calc-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 15px;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--light-text-color);
+        }
+
+        .input-group input[type="number"],
+        .input-group input[type="text"] {
+            width: calc(100% - 22px);
+            padding: 8px 10px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-family: inherit;
+            font-size: 1em;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            box-sizing: border-box;
+            background-color: var(--bg-color);
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(116, 127, 219, 0.3);
+        }
+
+        .result-field,
+        .display-field {
+            font-weight: bold;
+            color: var(--primary-color);
+            font-size: 1.1em;
+            padding: 8px 10px;
+            background-color: var(--highlight-bg);
+            border-radius: var(--border-radius);
+            display: inline-block;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .final-result {
+            font-weight: bold;
+            color: var(--accent-color);
+            font-size: 1.2em;
+        }
+
+        .info-text {
+            font-size: 0.9em;
+            color: var(--light-text-color);
+            margin-top: 8px;
+            background: var(--highlight-bg);
+            padding: 8px;
+            border-radius: var(--border-radius);
+            white-space: pre-wrap;
+        }
+
+        .warning-text {
+            font-size: 0.8em;
+            color: var(--accent-color);
+            margin-left: 5px;
+        }
+
+        button,
+        .button,
+        .add-row-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 600;
+            transition: background-color 0.2s;
+            display: inline-block;
+            text-decoration: none;
+        }
+
+        button:hover,
+        .button:hover,
+        .add-row-btn:hover {
+            background-color: var(--primary-hover-color);
+        }
+
+        .add-row-btn {
+            background-color: var(--button-alt-bg);
+            color: var(--text-color);
+            margin-top: 10px;
+        }
+
+        .add-row-btn:hover {
+            background-color: var(--button-alt-hover-bg);
+        }
+
+        .remove-btn-text,
+        .add-btn-text {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.5em;
+            font-weight: bold;
+            padding: 0 5px;
+            vertical-align: middle;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+
+        .remove-btn-text {
+            color: var(--accent-color);
+        }
+
+        .add-btn-text {
+            color: var(--success-color);
+        }
+
+        .remove-btn-text:hover {
+            color: var(--accent-hover-color);
+        }
+
+        .add-btn-text:hover {
+            color: var(--success-hover-color);
+        }
+
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab-button {
+            background-color: var(--highlight-bg);
+            color: var(--text-color);
+        }
+
+        .tab-button.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .item-tab-button.add-new-item-type-btn {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .item-tab-button.add-new-item-type-btn:hover {
+            background-color: var(--success-hover-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        table {
+            table-layout: fixed;
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th,
+        td {
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        th {
+            background-color: var(--highlight-bg);
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        td input[type="text"],
+        td input[type="number"] {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 8px 10px;
+        }
+
+        th.col-name,
+        td.col-name {
+            min-width: 120px;
+        }
+
+        th.col-status,
+        td.col-status {
+            width: 70px;
+        }
+
+        th.col-value,
+        td.col-value {
+            width: 70px;
+        }
+
+        th.col-distribution,
+        td.col-distribution {
+            min-width: 190px;
+        }
+
+        th.col-operation,
+        td.col-operation {
+            width: 70px;
+        }
+
+        .table-scroll-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .table-scroll-wrapper table {
+            min-width: 780px;
+            border: none;
+        }
+
+        .distribution-container {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .dist-entry {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .dist-entry input[type="text"] {
+            flex: 2;
+            min-width: 70px;
+            padding: 6px 8px;
+            box-sizing: border-box;
+        }
+
+        .dist-entry input[type="number"] {
+            flex: 1;
+            min-width: 50px;
+            padding: 6px 8px;
+            box-sizing: border-box;
+        }
+
+        .item-config-header {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-bottom: 15px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            align-items: center;
+        }
+
+        .item-config-header .input-group {
+            margin: 0;
+        }
+
+        #order-plan-output,
+        #total-bill-output,
+        #total-items-output,
+        #check-total-output {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: var(--highlight-bg);
+            border-radius: var(--border-radius);
+            white-space: pre-wrap;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .footer-credit {
+            font-style: italic;
+            opacity: 0.6;
+            text-align: center;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            color: var(--light-text-color);
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        #archive-button {
+            background-color: var(--success-color);
+        }
+
+        #archive-button:hover {
+            background-color: var(--success-hover-color);
+        }
+
+        #reset-button {
+            background-color: var(--accent-color);
+        }
+
+        #reset-button:hover {
+            background-color: var(--accent-hover-color);
+        }
+
+        #export-table-button {
+            background-color: var(--button-alt-bg);
+            color: var(--text-color);
+        }
+
+        #export-table-button:hover {
+            background-color: var(--button-alt-hover-bg);
+        }
+
+        #data-sync-button {
+            background-color: var(--primary-color);
+        }
+
+        #data-sync-button:hover {
+            background-color: var(--primary-hover-color);
+        }
+
+        #load-button {
+            background-color: var(--primary-color);
+        }
+
+        #load-button:hover {
+            background-color: var(--primary-hover-color);
+        }
+
+        #export-options-modal,
+        #data-sync-modal,
+        #load-modal {
+            display: none;
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background-color: var(--card-bg);
+            padding: 25px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+            z-index: 1000;
+            border-radius: var(--border-radius);
+            width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        #export-options-modal h3,
+        #data-sync-modal h3,
+        #load-modal h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            text-align: center;
+            color: var(--primary-color);
+        }
+
+        .modal-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 600;
+            display: block;
+            margin: 10px 0;
+            width: 100%;
+            text-align: center;
+            transition: background-color 0.2s;
+        }
+
+        .modal-button:hover {
+            background-color: var(--primary-hover-color);
+        }
+
+        #export-options-modal .cancel-button,
+        #data-sync-modal .cancel-button,
+        #load-modal .cancel-button {
+            background-color: var(--light-text-color);
+        }
+
+        #export-options-modal .cancel-button:hover,
+        #data-sync-modal .cancel-button:hover,
+        #load-modal .cancel-button:hover {
+            background-color: #555555;
+        }
+
+        .tooltip-trigger {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            line-height: 20px;
+            text-align: center;
+            border-radius: var(--border-radius);
+            /* Changed to square */
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            margin-left: 8px;
+            font-size: 0.75em;
+            vertical-align: middle;
+            user-select: none;
+            transition: background-color 0.2s;
+        }
+
+        .tooltip-trigger:hover {
+            background-color: var(--primary-hover-color);
+        }
+
+        .tooltip-content {
+            display: none;
+            position: absolute;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            box-shadow: var(--shadow);
+            z-index: 1001;
+            width: 320px;
+            max-width: calc(100vw - 40px);
+            font-size: 0.9em;
+            color: var(--text-color);
+            line-height: 1.5;
+        }
+
+        .tooltip-content p,
+        .tooltip-content ul,
+        .tooltip-content ol {
+            margin-bottom: 10px;
+        }
+
+        .tooltip-content strong {
+            color: var(--secondary-color);
+        }
+
+        .tooltip-content ul,
+        .tooltip-content ol {
+            padding-left: 20px;
+        }
+
+        .tooltip-content li {
+            margin-bottom: 5px;
+        }
+
+        #qr-code-container {
+            margin-bottom: 15px;
+        }
+
+        #qr-code-placeholder {
+            color: var(--light-text-color);
+            text-align: center;
+            padding: 20px;
+            border: 2px dashed var(--border-color);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        #qr-code-placeholder:hover {
+            background-color: var(--highlight-bg);
+        }
+
+        #qr-image-preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        #qr-image-preview-container img {
+            max-width: 48%;
+            flex-grow: 1;
+            height: auto;
+            max-height: 300px;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            object-fit: contain;
+        }
+
+        #summary-section .calc-section button {
+            margin-right: 10px;
+        }
+
+        #check-diff[style*="color: var(--success-color)"] {
+            color: var(--success-color) !important;
+            font-weight: bold;
+        }
+
+        #check-diff[style*="color: var(--accent-color)"] {
+            color: var(--accent-color) !important;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .card {
+                padding: 15px;
+            }
+
+            .calculator-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+
+            th,
+            td {
+                padding: 4px;
+            }
+
+            td input[type="text"],
+            td input[type="number"] {
+                padding: 5px;
+                font-size: 0.85em;
+            }
+
+            th.col-name,
+            td.col-name {
+                width: 100px;
+            }
+
+            th.col-status,
+            td.col-status {
+                width: 60px;
+            }
+
+            th.col-value,
+            td.col-value {
+                width: 50px;
+            }
+
+            th.col-distribution,
+            td.col-distribution {
+                min-width: 200px;
+            }
+
+            th.col-operation,
+            td.col-operation {
+                width: 60px;
+            }
+
+            .dist-entry input[type="text"] {
+                flex: 2;
+                width: 100px;
+            }
+
+            .dist-entry input[type="number"] {
+                flex: 1;
+                width: 50px;
+            }
+
+            .remove-btn-text,
+            .add-btn-text {
+                font-size: 1.1em;
+                padding: 0 2px;
+            }
+
+            .dist-entry {
+                gap: 3px;
+            }
+
+            .action-buttons button {
+                flex-basis: calc(50% - 10px);
+                min-width: 120px;
+            }
+
+            .table-scroll-wrapper table {
+                min-width: 660px;
+            }
+
+            .tooltip-content {
+                width: calc(100vw - 30px);
+            }
+        }
+
+        /* Autocomplete Suggestions Box Styles */
+        #autocomplete-suggestions {
+            display: none;
+            position: absolute;
+            border: 1px solid var(--border-color);
+            background-color: var(--card-bg);
+            z-index: 1002;
+            /* Must be higher than tooltips */
+            max-height: 150px;
+            overflow-y: auto;
+            box-shadow: var(--shadow);
+            border-radius: var(--border-radius);
+        }
+
+        .suggestion-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            color: var(--text-color);
+            font-size: 0.9em;
+        }
+
+        .suggestion-item:hover,
+        .suggestion-item.active {
+            background-color: var(--highlight-bg);
+            color: var(--secondary-color);
+        }
+
+        /* Copy Button Styles */
+        .copy-button-container {
+            position: relative;
+        }
+
+        .copy-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: 600;
+            transition: background-color 0.2s;
+            z-index: 10;
+        }
+
+        .copy-button:hover {
+            background-color: var(--primary-hover-color);
+        }
+
+        .copy-button.copied {
+            background-color: var(--success-color);
+        }
+
+        /* QR Code Image Container with Delete Button */
+        .qr-image-wrapper {
+            position: relative;
+            display: inline-block;
+            max-width: 48%;
+            flex-grow: 1;
+        }
+
+        .qr-image-wrapper img {
+            width: 100%;
+            height: auto;
+            max-height: 300px;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            object-fit: contain;
+            display: block;
+        }
+
+        .qr-delete-button {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+            padding: 0;
+        }
+
+        .qr-delete-button:hover {
+            background-color: var(--accent-hover-color);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1 id="main-title">开谷集成一体机 💖</h1>
+        <p class="footer-credit" style="margin-top: -10px; margin-bottom: 10px;">All by Keichi & Gemini</p>
+        <p id="version-info"
+            style="text-align: center; color: var(--light-text-color); font-size: 0.9em; margin-top: -5px; margin-bottom: 15px;">
+            v1.2</p>
+
+        <div class="action-buttons">
+            <button id="archive-button" onclick="archiveData()">💾 存储档案</button>
+            <button id="load-button" onclick="showLoadModal()">📂 读取档案</button>
+            <button id="reset-button" onclick="resetCurrentSlotData()">🔄 重置数据</button>
+            <button id="data-sync-button" onclick="showDataSyncModal()">📡 数据互通</button>
+            <button id="export-table-button" onclick="showExportOptions()">📤 导出表格</button>
+        </div>
+
+        <p id="current-slot-display"
+            style="color: var(--primary-color); font-size: 0.9em; font-weight: bold; margin-bottom: 2px; text-align: left;">
+            当前存档: -</p>
+        <p id="last-auto-save-time"
+            style="color: var(--light-text-color); font-size: 0.9em; font-style: italic; margin-bottom: 10px; text-align: left;">
+            上次自动保存时间: 尚未自动保存</p>
+        <p
+            style="color: var(--light-text-color); font-size: 0.8em; font-style: italic; margin-top: -8px; margin-bottom: 10px; text-align: left;">
+            PS：数据存储在你的浏览器本地，不会进行云端上传，请注意保存噢</p>
+
+        <div class="tabs">
+            <button class="tab-button active" onclick="showTab('calculator-section')">① 计算器</button>
+            <button class="tab-button" onclick="showTab('tables-section')">② 排表</button>
+            <button class="tab-button" onclick="showTab('remaining-section')">③ 余量</button>
+            <button class="tab-button" onclick="showTab('summary-section')">④ 肾表</button>
+        </div>
+
+        <section id="calculator-section" class="card tab-content active">
+            <h2>【计算器】</h2>
+            <div class="calculator-grid">
+                <div class="calc-section">
+                    <h3>本次开谷</h3>
+                    <p class="info-text" style="margin-bottom: 15px;">具体参数在对应的排表处修改୧( ॑ധ ॑)୨</p>
+                    <div class="input-group"><label id="postcard-price-label">皮肤明信片 - 价格</label><span
+                            id="postcard-price-display" class="display-field">28</span></div>
+                    <div class="input-group"><label id="postcard-sets-label">皮肤明信片 - 配数</label><span
+                            id="postcard-sets-display" class="display-field">0</span></div>
+                    <hr>
+                    <div class="input-group"><label id="resume-price-label">人事部简历 - 价格</label><span
+                            id="resume-price-display" class="display-field">24</span></div>
+                    <div class="input-group"><label id="resume-sets-label">人事部简历 - 配数</label><span
+                            id="resume-sets-display" class="display-field">0</span></div>
+                    <hr>
+                    <div class="input-group"><label id="pass1-price-label">通行证A - 价格</label><span
+                            id="pass1-price-display" class="display-field">350</span></div>
+                    <div class="input-group"><label id="pass1-sets-label">通行证A - 盒数</label><span id="pass1-sets-display"
+                            class="display-field">0</span></div>
+                    <hr>
+                    <div class="input-group"><label id="pass2-price-label">通行证B - 价格</label><span
+                            id="pass2-price-display" class="display-field">350</span></div>
+                    <div class="input-group"><label id="pass2-sets-label">通行证B - 盒数</label><span id="pass2-sets-display"
+                            class="display-field">0</span></div>
+                    <hr>
+                    <div class="input-group"><label id="sticker-price-label">贴纸 - 价格</label><span
+                            id="sticker-price-display" class="display-field">20</span></div>
+                    <div class="input-group"><label id="sticker-sets-label">贴纸 - 包数</label><span
+                            id="sticker-sets-display" class="display-field">0</span></div>
+
+                    <div id="dynamic-items-opening-display">
+                        <!-- Dynamically added item displays will go here -->
+                    </div>
+                    <hr>
+                    <p>单领总额: <span id="single-item-total" class="result-field">0.00</span> 元</p>
+                    <p>通行证外总额: <span id="total-excluding-pass" class="result-field">0.00</span> 元</p>
+                    <p>折前总额: <span id="total-before-discount" class="result-field">0.00</span> 元</p>
+                    <p>折后总额: <span id="total-after-discount" class="final-result">0.00</span> 元</p>
+                </div>
+
+                <div class="calc-section">
+                    <h3>特典相关</h3>
+                    <div class="input-group"><label>一档特典 (下单即得) - 价值</label><input type="number" id="bonus1-value"
+                            value="5"></div>
+                    <div class="input-group"><label>二档特典 - 门槛 (满 X 元)</label><input type="number" id="bonus2-threshold"
+                            value="219"></div>
+                    <div class="input-group"><label>二档特典 - 价值</label><input type="number" id="bonus2-value" value="20">
+                    </div>
+                    <div class="input-group"><label><input type="checkbox" id="enable-bonus3" onchange="toggleBonus3()">
+                            启用三档特典</label></div>
+                    <div id="bonus3-section" style="display:none;">
+                        <div class="input-group"><label>三档特典 - 门槛 (满 X 元)</label><input type="number"
+                                id="bonus3-threshold" value="500"></div>
+                        <div class="input-group"><label>三档特典 - 价值</label><input type="number" id="bonus3-value"
+                                value="0"></div>
+                    </div>
+                    <hr>
+                    <p>获得一档特典: <span id="bonus1-count" class="result-field">0</span> 份</p>
+                    <p>获得二档特典: <span id="bonus2-count" class="result-field">0</span> 份</p>
+                    <p>获得三档特典: <span id="bonus3-count" class="result-field">0</span> 份</p>
+                    <p>特典总价值: <span id="bonus-total-value" class="final-result">0.00</span> 元</p>
+                    <hr>
+                    <p class="info-text" style="color: #4a6a86; font-style: italic;">
+                        下单方案和特典份数仅供参考（可能不是最优方案），请务必自行核对和二次确认特典份数，不要过于相信笨笨AI喵QAQ</p>
+                    <div class="input-group"><label>自定义一档份数 (留空则按方案)</label><input type="number"
+                            id="bonus1-count-manual" placeholder="-" min="0"></div>
+                    <div class="input-group"><label>自定义二档份数 (留空则按方案)</label><input type="number"
+                            id="bonus2-count-manual" placeholder="-" min="0"></div>
+                    <div id="bonus3-manual-section" style="display:none;">
+                        <div class="input-group"><label>自定义三档份数 (留空则按方案)</label><input type="number"
+                                id="bonus3-count-manual" placeholder="-" min="0"></div>
+                    </div>
+                    <div id="bonus-gap-info" class="info-text"></div>
+                </div>
+
+                <div class="calc-section">
+                    <h3>其他折扣</h3>
+                    <div class="input-group"><label>每满 X 元减 Y 元 (平台券)</label>每满 <input type="number"
+                            id="manjian-threshold" value="300" style="width: 60px;"> 减 <input type="number"
+                            id="manjian-value" value="50" style="width: 60px;"></div>
+                    <div class="input-group"><label>88VIP 折扣 (不填为1，按实付计算)</label><input type="number" id="vip-discount"
+                            placeholder="例如: 0.95" step="0.01"></div>
+                    <div class="input-group"><label>购物金 折扣 (不填为1，最终计算)</label><input type="number" id="gold-discount"
+                            placeholder="例如: 0.9" step="0.01"></div>
+                    <div id="extra-discounts"></div>
+                    <button onclick="addExtraDiscount()">增加备用折扣</button>
+                    <hr>
+                    <div class="input-group"><label>满300-20优惠券 (张数)</label><input type="number" id="coupon-300-20"
+                            value="0" min="0"></div>
+                    <div class="input-group"><label>满200-10优惠券 (张数)</label><input type="number" id="coupon-200-10"
+                            value="0" min="0"></div>
+                    <div id="extra-coupons"></div>
+                    <button onclick="addExtraCoupon()">增加备用优惠券</button>
+                    <p class="info-text" style="color: var(--accent-color); font-weight: bold; margin-top: 10px;">
+                        【只填写能用的，会直接计入折扣！】</p>
+                </div>
+
+                <div class="calc-section full-width">
+                    <h3>最终折扣 <span class="tooltip-trigger" data-tooltip-target="final-discount-tooltip">?</span></h3>
+                    <div class="tooltip-content" id="final-discount-tooltip"></div>
+                    <p>最终折扣: <span id="final-discount-rate" class="final-result">N/A</span></p>
+                    <p><span id="final-postcard-name-display">皮肤明信片</span>均价: <span id="final-postcard-price"
+                            class="result-field">0.00</span> 元</p>
+                    <p><span id="final-resume-name-display">人事部简历</span>均价: <span id="final-resume-price"
+                            class="result-field">0.00</span> 元</p>
+                    <p><span id="final-pass1-name-display">通行证A</span>均价: <span id="final-pass1-price"
+                            class="result-field">0.00</span> 元</p>
+                    <p><span id="final-pass2-name-display">通行证B</span>均价: <span id="final-pass2-price"
+                            class="result-field">0.00</span> 元</p>
+                    <p><span id="final-sticker-name-display">贴纸</span>均价 (张): <span id="final-sticker-single-price"
+                            class="result-field">0.00</span> 元</p>
+                    <p><span id="final-sticker-pair-name-display">贴纸</span>均价 (对): <span id="final-sticker-pair-price"
+                            class="result-field">0.00</span> 元</p>
+                    <div id="dynamic-items-final-discount-display">
+                        <!-- Dynamically added item final prices will go here -->
+                    </div>
+                </div>
+
+                <div class="calc-section full-width">
+                    <h3>下单方案 <span class="tooltip-trigger" data-tooltip-target="order-plan-tooltip">?</span></h3>
+                    <div class="tooltip-content" id="order-plan-tooltip"></div>
+                    <div class="input-group"><label>包邮门槛 (元)</label><input type="number" id="free-shipping-threshold"
+                            value="99"></div>
+                    <div class="input-group"><label>邮费 (元)</label><input type="number" id="shipping-fee" value="8">
+                    </div>
+                    <button onclick="calculateAll(); calculateSummary();">✨ 点击生成/更新最佳方案 ✨</button>
+                    <div class="copy-button-container">
+                        <button class="copy-button" onclick="copyToClipboard('order-plan-output', this)">📋 复制</button>
+                        <div id="order-plan-output">请先填写上方信息，然后点击按钮生成方案...</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tables-section" class="card tab-content">
+            <h2>【排表】</h2>
+            <div class="tabs" id="item-tabs"></div>
+            <div id="item-tables-container"></div>
+        </section>
+        <section id="remaining-section" class="card tab-content">
+            <h2>【余量】</h2>
+            <button onclick="updateRemainingTable()">🔄 更新余量</button>
+            <div class="copy-button-container">
+                <button class="copy-button" onclick="copyToClipboard('remaining-output', this)">📋 复制</button>
+                <div id="remaining-output" style="margin-top: 20px;">
+                    <p style="color: var(--light-text-color); text-align: center; font-style: italic;">点击上方按钮更新余量表格...
+                    </p>
+                </div>
+            </div>
+
+        </section>
+
+        <section id="summary-section" class="card tab-content">
+            <h2>【肾表】</h2>
+            <button onclick="calculateSummary()">🚀 计算总肾表 & 总排表</button>
+            <div class="calculator-grid">
+                <div class="calc-section">
+                    <h3>总肾表</h3>
+                    <div class="copy-button-container">
+                        <button class="copy-button" onclick="copyToClipboard('total-bill-output', this)">📋 复制</button>
+                        <div id="total-bill-output">点击按钮计算...</div>
+                    </div>
+                </div>
+                <div class="calc-section">
+                    <h3>总排表</h3>
+                    <div class="copy-button-container">
+                        <button class="copy-button" onclick="copyToClipboard('total-items-output', this)">📋 复制</button>
+                        <div id="total-items-output">点击按钮计算...</div>
+                    </div>
+                </div>
+
+                <!-- QR Code Uploader Start -->
+                <div class="calc-section">
+                    <h3>肾码</h3>
+                    <div id="qr-code-container">
+                        <p id="qr-code-placeholder" onclick="document.getElementById('qr-code-input').click()">
+                            请在这里传肾码喵₍₍ ᕕ(´ ω` )ᕗ⁾⁾</p>
+                        <div id="qr-image-preview-container"></div>
+                    </div>
+                    <input type="file" id="qr-code-input" accept="image/*" multiple onchange="handleQrCodeUpload(event)"
+                        style="display: none;">
+                    <button onclick="document.getElementById('qr-code-input').click()">上传图片</button>
+                    <button id="clear-qr-codes-btn" onclick="clearQrCodes()"
+                        style="display: none; background-color: var(--accent-color);">清空图片</button>
+                </div>
+                <!-- QR Code Uploader End -->
+                <div class="calc-section full-width">
+                    <h3>肾额核对</h3>
+                    <div id="check-total-output">
+                        <p>应当收肾 (折后总额+特典总价值): <span id="expected-total" class="result-field">0.00</span> 元</p>
+                        <p>实际收肾 (团员总计): <span id="actual-total" class="result-field">0.00</span> 元</p>
+                        <p id="check-diff" class="info-text"></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <p class="footer-credit">All by Keichi & Gemini</p>
+
+        <div id="export-options-modal">
+            <h3>选择导出内容 (Excel)</h3>
+            <button class="modal-button" onclick="exportCalculatorData(); hideExportOptions();">导出①计算器</button>
+            <button class="modal-button" onclick="exportTablesData(); hideExportOptions();">导出②排表</button>
+            <button class="modal-button" onclick="exportSummaryData(); hideExportOptions();">导出③肾表</button>
+            <button class="modal-button" onclick="exportAllData(); hideExportOptions();">导出全部</button>
+            <button class="modal-button cancel-button" onclick="hideExportOptions();">取消</button>
+        </div>
+
+        <div id="data-sync-modal">
+            <h3>数据互通</h3>
+            <button class="modal-button" onclick="exportAllDataAsJson(); hideDataSyncModal();">导出全部数据 (JSON)</button>
+            <input type="file" id="json-import-file" accept=".json" style="display: none;"
+                onchange="handleJsonFileImport(event)">
+            <button class="modal-button" onclick="document.getElementById('json-import-file').click();">导入数据
+                (JSON)</button>
+            <button class="modal-button cancel-button" onclick="hideDataSyncModal();">取消</button>
+        </div>
+
+        <div id="load-modal">
+            <h3>选择要读取的档案</h3>
+            <div id="load-modal-list">
+                <!-- Archive list will be generated here -->
+            </div>
+            <button class="modal-button cancel-button" onclick="hideLoadModal()">取消</button>
+        </div>
+
+    </div>
+
+    <script>
+        let lastOrderPlan = null;
+        const SAVE_MANIFEST_KEY = 'keichiToolSaves-v1.2';
+        const ACTIVE_SLOT_KEY = 'keichiToolActiveSlot-v1.2';
+        const DEFAULT_SLOT_NAME = '默认存档';
+        const LAST_AUTO_SAVE_TIME_KEY_PREFIX = 'keichiToolLastAutoSave-v1.2_';
+        const QR_CODES_KEY = 'keichiToolQrCodes-v1.2';
+        let currentSlotName = DEFAULT_SLOT_NAME;
+        let dynamicItemCounter = 0;
+        let lastAutoSaveTimestamp = null;
+
+        let itemTypes = {
+            'postcard': {
+                id_prefix: 'postcard', key: '皮肤明信片',
+                defaults: { name: '皮肤明信片', price: 28, chars: 7, sets: 0 },
+                avgPriceId: 'final-postcard-price',
+                hasChars: true, hasSets: true, isDynamic: false, isSticker: false, setsLabel: '配数'
+            },
+            'resume': {
+                id_prefix: 'resume', key: '人事部简历',
+                defaults: { name: '人事部简历', price: 24, chars: 3, sets: 0 },
+                avgPriceId: 'final-resume-price',
+                hasChars: true, hasSets: true, isDynamic: false, isSticker: false, setsLabel: '配数'
+            },
+            'pass1': {
+                id_prefix: 'pass1', key: '通行证A',
+                defaults: { name: '通行证A', price: 350, chars: 7, sets: 0 },
+                avgPriceId: 'final-pass1-price',
+                hasChars: true, hasSets: true, setsLabel: '盒数', isDynamic: false, isSticker: false
+            },
+            'pass2': {
+                id_prefix: 'pass2', key: '通行证B',
+                defaults: { name: '通行证B', price: 350, chars: 7, sets: 0 },
+                avgPriceId: 'final-pass2-price',
+                hasChars: true, hasSets: true, setsLabel: '盒数', isDynamic: false, isSticker: false
+            },
+            'sticker': {
+                id_prefix: 'sticker', key: '贴纸',
+                defaults: { name: '贴纸', price: 20, chars: 8, sets: 0 },
+                avgPriceId: 'final-sticker-pair-price',
+                hasChars: true, hasSets: true, setsLabel: '包数', isSticker: true, isDynamic: false
+            },
+            'single': { id_prefix: 'single', key: '单领', isDynamicTabContent: true, isDynamic: false },
+            'bonus': { id_prefix: 'bonus', key: '特典', isDynamicTabContent: true, canSplit: true, isDynamic: false }
+        };
+        const initialItemTypes = JSON.parse(JSON.stringify(itemTypes));
+        let orderedTypesForTabs = ['postcard', 'resume', 'pass1', 'pass2', 'sticker', 'single', 'bonus'];
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('main-title').textContent = `开谷集成一体机 💖`;
+            document.getElementById('version-info').textContent = `v1.2`;
+
+            currentSlotName = localStorage.getItem(ACTIVE_SLOT_KEY) || DEFAULT_SLOT_NAME;
+            document.getElementById('current-slot-display').textContent = `当前存档: ${currentSlotName}`;
+
+            updateLastAutoSaveTimeDisplay();
+
+            loadData();
+            loadQrCodes();
+            showTab('calculator-section');
+            if (document.getElementById('tables-section').classList.contains('active') && orderedTypesForTabs.length > 0) {
+                const firstValidTab = orderedTypesForTabs.find(key => itemTypes[key]);
+                if (firstValidTab) showItemTab(firstValidTab);
+            }
+
+            setInterval(() => {
+                saveData(true);
+            }, 1000); // Auto-save every 1 second
+
+            window.addEventListener('beforeunload', () => saveData(true, false)); // Auto-save on refresh/close, no feedback
+
+            // Tooltip functionality
+            const tooltipTriggers = document.querySelectorAll('.tooltip-trigger');
+            let activeTooltip = null;
+
+            tooltipTriggers.forEach(trigger => {
+                trigger.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    const tooltipId = trigger.dataset.tooltipTarget;
+                    const tooltip = document.getElementById(tooltipId);
+
+                    if (activeTooltip && activeTooltip !== tooltip) {
+                        activeTooltip.style.display = 'none';
+                    }
+
+                    if (tooltip) {
+                        if (tooltip.style.display === 'block') {
+                            tooltip.style.display = 'none';
+                            activeTooltip = null;
+                        } else {
+                            tooltip.style.display = 'block';
+                            const triggerRect = trigger.getBoundingClientRect();
+                            const containerRect = document.querySelector('.container').getBoundingClientRect();
+
+                            let top = triggerRect.bottom + window.scrollY + 5;
+                            let left = triggerRect.left + window.scrollX;
+
+                            tooltip.style.top = top + 'px';
+                            tooltip.style.left = left + 'px';
+
+                            const tooltipRect = tooltip.getBoundingClientRect();
+                            if (tooltipRect.right > window.innerWidth - 10) {
+                                left = window.innerWidth - tooltipRect.width - 10 - window.scrollX;
+                            }
+                            if (left < 10) {
+                                left = 10;
+                            }
+                            tooltip.style.left = left + 'px';
+
+                            if (tooltipRect.bottom > window.innerHeight - 10 && triggerRect.top > tooltipRect.height + 5) {
+                                top = triggerRect.top + window.scrollY - tooltipRect.height - 5;
+                                tooltip.style.top = top + 'px';
+                            }
+
+                            activeTooltip = tooltip;
+                        }
+                    }
+                });
+            });
+
+            document.addEventListener('click', (event) => {
+                if (activeTooltip) {
+                    const triggerForActiveTooltip = document.querySelector(`.tooltip-trigger[data-tooltip-target="${activeTooltip.id}"]`);
+                    if (!activeTooltip.contains(event.target) && (!triggerForActiveTooltip || !triggerForActiveTooltip.contains(event.target))) {
+                        activeTooltip.style.display = 'none';
+                        activeTooltip = null;
+                    }
+                }
+            });
+
+            const finalDiscountTooltip = document.getElementById('final-discount-tooltip');
+            if (finalDiscountTooltip) {
+                finalDiscountTooltip.innerHTML = `
+            <p style="margin-top:0;"><strong>“最终折扣”是怎么算出来的？</strong></p>
+            <p>简单来说，它是根据您实际支付的总金额（扣除特典价值后）与商品原价总额的比率。</p>
+            <p>计算顺序大致如下：</p>
+            <ol>
+                <li>算出所有商品的原价总和 (这是“折前总额”)。</li>
+                <li>依次应用您填写的各种折扣：
+                    <ul>
+                        <li>“备用折扣”(例如0.98)</li>
+                        <li>“每满X减Y”(平台券)</li>
+                        <li>“优惠券”(如满300-20)</li>
+                        <li>“88VIP折扣”</li>
+                        <li>“购物金折扣”</li>
+                    </ul>
+                </li>
+                <li>得到一个初步的商品实付款。</li>
+                <li>加上预估的“总邮费”。</li>
+                <li>减去您获得的“特典总价值”。</li>
+                <li>这就是最终页面上显示的“折后总额”。</li>
+                <li>用这个“折后总额”除以第1步的“折前总额”，就得到“最终折扣率”。</li>
+            </ol>
+            <p><em>各个商品的“均价”就是用这个折扣率乘以它们的原价（或每份原价）得到的。</em></p>
+        `;
+            }
+
+            const orderPlanTooltip = document.getElementById('order-plan-tooltip');
+            if (orderPlanTooltip) {
+                orderPlanTooltip.innerHTML = `
+            <p style="margin-top:0;"><strong>“下单方案”是根据什么规划的？</strong></p>
+            <p>这个方案的目标是帮您规划如何组合订单，以便在买到所有想要的东西的前提下：</p>
+            <ul>
+                <li>尽可能多地拿到各档位特典。</li>
+                <li>尽可能少付邮费，或者让邮费花得值（比如付了邮费但拿到了价值更高的特典）。</li>
+            </ul>
+            <p>它会考虑：</p>
+            <ul>
+                <li>您购买的所有商品和它们的价格。</li>
+                <li>包邮门槛和邮费金额。</li>
+                <li>各档特典的获取条件（满多少钱）和价值。</li>
+            </ul>
+            <p>计算机会尝试把商品分成不同数量的订单（比如1单、2单、3单等），并为每种分法计算能获得的“净收益”（特典总价值 - 邮费总额），然后推荐净收益最高的那种方案。</p>
+            <p><em>请注意：这只是一个基于当前设置的算法建议，实际情况可能更复杂（如店铺限购、特定商品组合优惠等）。最终还请您根据实际情况核对和调整！</em></p>
+        `;
+            }
+            setupAutocomplete();
+        });
+
+        function updateLastAutoSaveTimeDisplay() {
+            const displayElement = document.getElementById('last-auto-save-time');
+            const savedTimestampStr = localStorage.getItem(LAST_AUTO_SAVE_TIME_KEY_PREFIX + currentSlotName);
+
+            if (savedTimestampStr) {
+                lastAutoSaveTimestamp = new Date(savedTimestampStr);
+            } else {
+                lastAutoSaveTimestamp = null;
+            }
+
+            if (displayElement && lastAutoSaveTimestamp) {
+                const timeString = lastAutoSaveTimestamp.toLocaleString('zh-CN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false
+                }).replace(/\//g, '-');
+                displayElement.textContent = `上次自动保存时间: ${timeString}`;
+            } else if (displayElement) {
+                displayElement.textContent = '上次自动保存时间: 尚未自动保存';
+            }
+        }
+
+        function saveData(isAutoSave = false, showFeedback = true) {
+            const data = {
+                calculator: {},
+                tables: {},
+                itemConfigs: {},
+                dynamicTypeKeys: [],
+                orderedTypesForTabs: [...orderedTypesForTabs],
+                dynamicItemCounter: dynamicItemCounter,
+                qrCodes: []
+            };
+
+            data.calculator.extraDiscountValues = [];
+            data.calculator.extraCouponValues = [];
+            const calcInputs = document.querySelectorAll('#calculator-section input');
+            calcInputs.forEach(input => {
+                if (input.id) {
+                    data.calculator[input.id] = (input.type === 'checkbox') ? input.checked : input.value;
+                } else if (input.classList.contains('extra-discount-input')) {
+                    data.calculator.extraDiscountValues.push(input.value);
+                } else if (input.classList.contains('extra-coupon-input')) {
+                    data.calculator.extraCouponValues.push(input.value);
+                }
+            });
+
+            Object.keys(itemTypes).forEach(typeKey => {
+                const itemConfig = itemTypes[typeKey];
+                if (!itemConfig) return;
+
+                if (!itemConfig.isDynamicTabContent) {
+                    const defaultsToSave = itemConfig.defaults || {};
+                    data.itemConfigs[typeKey] = {
+                        name: defaultsToSave.name || itemConfig.key,
+                        price: defaultsToSave.price || '',
+                        chars: defaultsToSave.chars || '',
+                        sets: defaultsToSave.sets || '',
+                        isSticker: itemConfig.isSticker || false,
+                        hasChars: itemConfig.hasChars === undefined ? true : itemConfig.hasChars,
+                        hasSets: itemConfig.hasSets === undefined ? true : itemConfig.hasSets,
+                        setsLabel: itemConfig.setsLabel || (itemConfig.hasSets ? (itemConfig.isSticker ? '包数' : (itemConfig.id_prefix.includes('pass') ? '盒数' : '配数')) : '')
+                    };
+                }
+                if (itemConfig.isDynamic) {
+                    data.dynamicTypeKeys.push(typeKey);
+                }
+            });
+
+            Object.keys(itemTypes).forEach(typeKey => {
+                const itemConfig = itemTypes[typeKey];
+                if (!itemConfig) return;
+
+                const dataTableKey = itemConfig.key;
+                data.tables[dataTableKey] = [];
+                const table = document.getElementById(`data-table-${typeKey}`);
+                if (!table) return;
+
+                table.querySelectorAll('tbody tr').forEach(row => {
+                    const rowData = { distribution: [] };
+                    let mainIdentifierFilled = false;
+                    let distributionHasContent = false;
+
+                    const charNameInput = row.querySelector('input[placeholder="角色名..."]');
+                    if (charNameInput && charNameInput.value.trim() !== '') {
+                        rowData.charName = charNameInput.value.trim();
+                        mainIdentifierFilled = true;
+                    }
+                    const kindInput = row.querySelector('input[data-type="kind"]');
+                    if (kindInput && kindInput.value.trim() !== '') {
+                        if (typeKey === 'bonus') rowData.tier = kindInput.value.trim();
+                        else rowData.kind = kindInput.value.trim();
+                        mainIdentifierFilled = true;
+                    }
+                    const customKindInput = row.querySelector('.custom-kind');
+                    if (customKindInput && customKindInput.value.trim() !== '') {
+                        rowData.customKind = customKindInput.value.trim();
+                        mainIdentifierFilled = true;
+                    }
+                    const priceInputForSingle = row.querySelector('input[data-type="price"]');
+                    if (priceInputForSingle && typeKey === 'single' && priceInputForSingle.value.trim() !== '') {
+                        rowData.price = priceInputForSingle.value.trim();
+                        mainIdentifierFilled = true;
+                    }
+
+                    const adjPriceInput = row.querySelector('.adj-price');
+                    if (adjPriceInput) rowData.adjPrice = adjPriceInput.value;
+
+                    const statusCell = row.querySelector('.sticker-status');
+                    if (statusCell) rowData.status = statusCell.textContent;
+                    rowData.splitCount = row.dataset.splitCount || 1;
+
+                    const distEntriesOnPage = row.querySelectorAll('.dist-entry');
+                    distEntriesOnPage.forEach(entry => {
+                        const name = entry.querySelector('.dist-name').value;
+                        const quantity = entry.querySelector('.dist-quantity').value;
+                        if (name.trim() !== '' || quantity.trim() !== '') {
+                            rowData.distribution.push({ name, quantity });
+                            if (name.trim() !== '' || (quantity.trim() !== '' && parseInt(quantity) !== 0)) {
+                                distributionHasContent = true;
+                            }
+                        } else if (distEntriesOnPage.length === 1 && name.trim() === '' && quantity.trim() === '') {
+                            rowData.distribution.push({ name: '', quantity: '' });
+                        }
+                    });
+
+                    if (itemConfig && !itemConfig.isDynamicTabContent && itemConfig.hasChars && !itemConfig.isDynamic) {
+                        data.tables[dataTableKey].push(rowData);
+                    }
+                    else if (mainIdentifierFilled || distributionHasContent || (rowData.adjPrice && parseFloat(rowData.adjPrice) !== 0)) {
+                        data.tables[dataTableKey].push(rowData);
+                    }
+                    else if (typeKey === 'bonus' && rowData.tier &&
+                        (rowData.tier.includes('一档') || rowData.tier.includes('二档') || rowData.tier.includes('三档')) &&
+                        !mainIdentifierFilled && !distributionHasContent && (!rowData.adjPrice || parseFloat(rowData.adjPrice) === 0)) {
+                        data.tables[dataTableKey].push(rowData);
+                    }
+                });
+            });
+
+            // Save QR Codes
+            const qrImages = document.querySelectorAll('#qr-image-preview-container img');
+            qrImages.forEach(img => {
+                if (img.src) {
+                    data.qrCodes.push(img.src);
+                }
+            });
+
+            const allSaves = JSON.parse(localStorage.getItem(SAVE_MANIFEST_KEY) || '{}');
+            allSaves[currentSlotName] = data;
+            localStorage.setItem(SAVE_MANIFEST_KEY, JSON.stringify(allSaves));
+
+            if (isAutoSave) {
+                lastAutoSaveTimestamp = new Date();
+                localStorage.setItem(LAST_AUTO_SAVE_TIME_KEY_PREFIX + currentSlotName, lastAutoSaveTimestamp.toISOString());
+                updateLastAutoSaveTimeDisplay();
+            }
+        }
+
+        function archiveData() {
+            const defaultName = getFormattedDateTime();
+            const newSlotName = prompt(`请输入档案名称（用于在读取时识别）`, defaultName);
+
+            if (newSlotName && newSlotName.trim() !== '') {
+                currentSlotName = newSlotName.trim();
+                localStorage.setItem(ACTIVE_SLOT_KEY, currentSlotName);
+                document.getElementById('current-slot-display').textContent = `当前存档: ${currentSlotName}`;
+
+                saveData(false); // Save the current state to this new slot name
+
+                const archiveBtn = document.getElementById('archive-button');
+                archiveBtn.textContent = '✅ 存储成功!';
+                setTimeout(() => { archiveBtn.textContent = '💾 存储档案'; }, 2000);
+            }
+        }
+
+        function loadData(importedData = null) {
+            let dataToLoad = null;
+
+            if (importedData) {
+                dataToLoad = importedData;
+            } else {
+                const allSaves = JSON.parse(localStorage.getItem(SAVE_MANIFEST_KEY) || '{}');
+                dataToLoad = allSaves[currentSlotName];
+            }
+
+            // 如果没有数据可加载 (比如重置或新存档)，则彻底恢复到初始状态
+            if (!dataToLoad) {
+                itemTypes = JSON.parse(JSON.stringify(initialItemTypes));
+            }
+
+            clearDynamicItemTypesAndUI();
+            dynamicItemCounter = 0;
+
+            if (dataToLoad) {
+                dynamicItemCounter = dataToLoad.dynamicItemCounter || 0;
+
+                if (dataToLoad.orderedTypesForTabs) {
+                    orderedTypesForTabs = [...dataToLoad.orderedTypesForTabs];
+                } else {
+                    orderedTypesForTabs = ['postcard', 'resume', 'pass1', 'pass2', 'sticker', 'single', 'bonus'];
+                }
+
+                if (dataToLoad.itemConfigs) {
+                    Object.keys(dataToLoad.itemConfigs).forEach(typeKey => {
+                        const config = dataToLoad.itemConfigs[typeKey];
+                        if (itemTypes[typeKey] && !itemTypes[typeKey].isDynamic) {
+                            itemTypes[typeKey].key = config.name;
+                            itemTypes[typeKey].defaults = { name: config.name, price: config.price, chars: config.chars, sets: config.sets };
+                            if (config.isSticker !== undefined) itemTypes[typeKey].isSticker = config.isSticker;
+                            if (config.hasChars !== undefined) itemTypes[typeKey].hasChars = config.hasChars;
+                            if (config.hasSets !== undefined) itemTypes[typeKey].hasSets = config.hasSets;
+                            if (config.setsLabel !== undefined) itemTypes[typeKey].setsLabel = config.setsLabel;
+
+                        } else if (dataToLoad.dynamicTypeKeys && dataToLoad.dynamicTypeKeys.includes(typeKey)) {
+                            itemTypes[typeKey] = {
+                                id_prefix: typeKey,
+                                key: config.name,
+                                defaults: { name: config.name, price: config.price, chars: config.chars, sets: config.sets },
+                                avgPriceId: `final-${typeKey}-price`,
+                                hasChars: config.hasChars !== undefined ? config.hasChars : true,
+                                hasSets: config.hasSets !== undefined ? config.hasSets : true,
+                                setsLabel: config.setsLabel || (config.hasSets ? '配数' : ''),
+                                isSticker: config.isSticker || false,
+                                isDynamic: true,
+                                isDynamicTabContent: false
+                            };
+                        }
+                    });
+                }
+
+            } else {
+                orderedTypesForTabs = ['postcard', 'resume', 'pass1', 'pass2', 'sticker', 'single', 'bonus'];
+            }
+
+            orderedTypesForTabs = orderedTypesForTabs.filter(typeKey => itemTypes[typeKey]);
+
+            const staticTypes = ['postcard', 'resume', 'pass1', 'pass2', 'sticker', 'single', 'bonus'];
+            staticTypes.forEach(st => {
+                if (itemTypes[st] && !orderedTypesForTabs.includes(st)) {
+                    const singleIndex = orderedTypesForTabs.indexOf('single');
+                    if (singleIndex !== -1) {
+                        orderedTypesForTabs.splice(singleIndex, 0, st);
+                    } else {
+                        orderedTypesForTabs.push(st);
+                    }
+                }
+            });
+            orderedTypesForTabs = [...new Set(orderedTypesForTabs)];
+
+            generateTables(dataToLoad ? dataToLoad.tables : null);
+
+            if (dataToLoad && dataToLoad.calculator) {
+                document.querySelectorAll('#calculator-section input:not(.extra-discount-input):not(.extra-coupon-input)').forEach(input => {
+                    if (input.id && dataToLoad.calculator[input.id] !== undefined) {
+                        input.type === 'checkbox' ? input.checked = dataToLoad.calculator[input.id] : input.value = dataToLoad.calculator[input.id];
+                    } else if (input.type !== 'checkbox') {
+                        input.value = input.defaultValue || '';
+                    } else {
+                        input.checked = input.defaultChecked || false;
+                    }
+                });
+
+                if (document.getElementById('enable-bonus3').checked) {
+                    document.getElementById('bonus3-section').style.display = 'block';
+                    document.getElementById('bonus3-manual-section').style.display = 'block';
+                } else {
+                    document.getElementById('bonus3-section').style.display = 'none';
+                    document.getElementById('bonus3-manual-section').style.display = 'none';
+                }
+
+                const extraDiscountsContainer = document.getElementById('extra-discounts');
+                extraDiscountsContainer.innerHTML = '';
+                if (dataToLoad.calculator.extraDiscountValues && Array.isArray(dataToLoad.calculator.extraDiscountValues)) {
+                    dataToLoad.calculator.extraDiscountValues.forEach(value => {
+                        addExtraDiscount(false);
+                        const allExtraDiscountInputs = extraDiscountsContainer.querySelectorAll('.extra-discount-input');
+                        const newDiscountInput = allExtraDiscountInputs[allExtraDiscountInputs.length - 1];
+                        if (newDiscountInput) newDiscountInput.value = value;
+                    });
+                }
+
+                const extraCouponsContainer = document.getElementById('extra-coupons');
+                extraCouponsContainer.innerHTML = '';
+                if (dataToLoad.calculator.extraCouponValues && Array.isArray(dataToLoad.calculator.extraCouponValues)) {
+                    dataToLoad.calculator.extraCouponValues.forEach(value => {
+                        addExtraCoupon(false);
+                        const allExtraCouponInputs = extraCouponsContainer.querySelectorAll('.extra-coupon-input');
+                        const newCouponInput = allExtraCouponInputs[allExtraCouponInputs.length - 1];
+                        if (newCouponInput) newCouponInput.value = value;
+                    });
+                }
+            } else {
+                // 如果没有数据加载，清空所有输入框
+                document.querySelectorAll('#calculator-section input').forEach(input => {
+                    if (input.type === 'checkbox') {
+                        input.checked = false;
+                    } else if (input.type === 'number' || input.type === 'text') {
+                        input.value = '';
+                    }
+                });
+                document.getElementById('extra-discounts').innerHTML = '';
+                document.getElementById('extra-coupons').innerHTML = '';
+                toggleBonus3();
+            }
+
+            calculateAll();
+            calculateSummary();
+
+            if (importedData || !dataToLoad) {
+                saveData(true);
+            }
+
+            updateNameCaches();
+        }
+
+        function clearDynamicItemTypesAndUI() {
+            Object.keys(itemTypes).forEach(typeKey => {
+                if (itemTypes[typeKey] && itemTypes[typeKey].isDynamic) {
+                    delete itemTypes[typeKey];
+                }
+            });
+            orderedTypesForTabs = orderedTypesForTabs.filter(typeKey => itemTypes[typeKey] && !itemTypes[typeKey].isDynamic);
+
+            document.getElementById('dynamic-items-opening-display').innerHTML = '';
+            document.getElementById('dynamic-items-final-discount-display').innerHTML = '';
+        }
+
+        function resetCurrentSlotData() {
+            if (confirm(`确定要重置当前存档【${currentSlotName}】的所有数据吗？此操作不可逆！`)) {
+                const allSaves = JSON.parse(localStorage.getItem(SAVE_MANIFEST_KEY) || '{}');
+
+                if (allSaves[currentSlotName]) {
+                    delete allSaves[currentSlotName];
+                    localStorage.setItem(SAVE_MANIFEST_KEY, JSON.stringify(allSaves));
+                }
+
+                localStorage.removeItem(LAST_AUTO_SAVE_TIME_KEY_PREFIX + currentSlotName);
+
+                // 不再刷新页面，而是直接调用loadData(null)来重置应用状态
+                loadData(null);
+
+                updateLastAutoSaveTimeDisplay(); // 更新显示的时间
+
+                alert('当前存档数据已重置！');
+            }
+        }
+
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+            document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).style.display = 'block';
+            document.querySelector(`button[onclick="showTab('${tabId}')"]`).classList.add('active');
+        }
+
+        function showItemTab(tabKeyToShow) {
+            document.querySelectorAll('.item-tab-content').forEach(c => c.style.display = 'none');
+            document.querySelectorAll('.item-tab-button').forEach(b => b.classList.remove('active'));
+
+            const tabContent = document.getElementById(`table-${tabKeyToShow}`);
+            if (tabContent) tabContent.style.display = 'block';
+
+            const tabButton = document.querySelector(`.item-tab-button[data-tab="${tabKeyToShow}"]`);
+            if (tabButton) tabButton.classList.add('active');
+        }
+
+        function toggleBonus3() {
+            const isEnabled = document.getElementById('enable-bonus3').checked;
+            document.getElementById('bonus3-section').style.display = isEnabled ? 'block' : 'none';
+            document.getElementById('bonus3-manual-section').style.display = isEnabled ? 'block' : 'none';
+        }
+
+        function addExtraDiscount() {
+            const container = document.getElementById('extra-discounts');
+            const div = document.createElement('div');
+            div.className = 'input-group';
+            div.innerHTML = `
+        <label>备用折扣 (不填为1，优先计算)</label> 
+        <input type="number" class="extra-discount-input" placeholder="例如: 0.98" step="0.01">
+        <button type="button" class="remove-btn-text" onclick="this.parentElement.remove();">×</button>
+    `;
+            container.appendChild(div);
+        }
+
+        function addExtraCoupon() {
+            const container = document.getElementById('extra-coupons');
+            const div = document.createElement('div');
+            div.className = 'input-group';
+            div.innerHTML = `
+        <label>备用券面额 (元)</label> 
+        <input type="number" class="extra-coupon-input" placeholder="例如: 10" step="1">
+        <button type="button" class="remove-btn-text" onclick="this.parentElement.remove();">×</button>
+    `;
+            container.appendChild(div);
+        }
+
+        function handleQrCodeUpload(event) {
+            const files = event.target.files;
+            const previewContainer = document.getElementById('qr-image-preview-container');
+            const placeholder = document.getElementById('qr-code-placeholder');
+            const clearBtn = document.getElementById('clear-qr-codes-btn');
+
+            if (!files || files.length === 0) return;
+
+            const readPromises = [];
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                if (!file.type.startsWith('image/')) continue;
+
+                const promise = new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => resolve(e.target.result);
+                    reader.onerror = (e) => reject(e);
+                    reader.readAsDataURL(file);
+                });
+                readPromises.push(promise);
+            }
+
+            Promise.all(readPromises).then(results => {
+                results.forEach(src => {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'qr-image-wrapper';
+
+                    const img = document.createElement('img');
+                    img.src = src;
+
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'qr-delete-button';
+                    deleteBtn.textContent = '×';
+                    deleteBtn.onclick = () => {
+                        wrapper.remove();
+                        saveQrCodes();
+                        if (previewContainer.children.length === 0) {
+                            placeholder.style.display = 'block';
+                            clearBtn.style.display = 'none';
+                        }
+                    };
+
+                    wrapper.appendChild(img);
+                    wrapper.appendChild(deleteBtn);
+                    previewContainer.appendChild(wrapper);
+                });
+
+                if (previewContainer.children.length > 0) {
+                    placeholder.style.display = 'none';
+                    clearBtn.style.display = 'inline-block';
+                }
+
+                saveQrCodes();
+            }).catch(error => {
+                console.error("Error reading files:", error);
+                alert("读取图片文件时出错。");
+            });
+
+            event.target.value = '';
+        }
+
+        function clearQrCodes() {
+            const previewContainer = document.getElementById('qr-image-preview-container');
+            const placeholder = document.getElementById('qr-code-placeholder');
+            const clearBtn = document.getElementById('clear-qr-codes-btn');
+
+            if (confirm('确定要清空所有肾码图片吗？')) {
+                previewContainer.innerHTML = '';
+                placeholder.style.display = 'block';
+                clearBtn.style.display = 'none';
+                saveQrCodes();
+            }
+        }
+
+        function saveQrCodes() {
+            const qrImages = document.querySelectorAll('#qr-image-preview-container img');
+            const qrCodes = [];
+            qrImages.forEach(img => {
+                if (img.src) {
+                    qrCodes.push(img.src);
+                }
+            });
+            localStorage.setItem(QR_CODES_KEY, JSON.stringify(qrCodes));
+        }
+
+        function loadQrCodes() {
+            const savedQrCodes = localStorage.getItem(QR_CODES_KEY);
+            if (!savedQrCodes) return;
+
+            const qrCodes = JSON.parse(savedQrCodes);
+            const previewContainer = document.getElementById('qr-image-preview-container');
+            const placeholder = document.getElementById('qr-code-placeholder');
+            const clearBtn = document.getElementById('clear-qr-codes-btn');
+
+            previewContainer.innerHTML = '';
+
+            qrCodes.forEach(src => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'qr-image-wrapper';
+
+                const img = document.createElement('img');
+                img.src = src;
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'qr-delete-button';
+                deleteBtn.textContent = '×';
+                deleteBtn.onclick = () => {
+                    wrapper.remove();
+                    saveQrCodes();
+                    if (previewContainer.children.length === 0) {
+                        placeholder.style.display = 'block';
+                        clearBtn.style.display = 'none';
+                    }
+                };
+
+                wrapper.appendChild(img);
+                wrapper.appendChild(deleteBtn);
+                previewContainer.appendChild(wrapper);
+            });
+
+            if (previewContainer.children.length > 0) {
+                placeholder.style.display = 'none';
+                clearBtn.style.display = 'inline-block';
+            }
+        }
+
+
+        function getInputs() {
+            const getNum = id => parseFloat(document.getElementById(id).value) || 0;
+            const getVal = id => document.getElementById(id).value;
+            const getDiscount = id => parseFloat(document.getElementById(id).value) || 1;
+            let extraDiscounts = Array.from(document.querySelectorAll('.extra-discount-input')).map(input => parseFloat(input.value) || 1);
+            let extraCoupons = Array.from(document.querySelectorAll('.extra-coupon-input')).map(input => parseFloat(input.value) || 0);
+
+            const inputs = {
+                bonus1: { value: getNum('bonus1-value'), manual_count: getVal('bonus1-count-manual') },
+                bonus2: { threshold: getNum('bonus2-threshold'), value: getNum('bonus2-value'), manual_count: getVal('bonus2-count-manual') },
+                bonus3: { enabled: document.getElementById('enable-bonus3').checked, threshold: getNum('bonus3-threshold'), value: getNum('bonus3-value'), manual_count: getVal('bonus3-count-manual') },
+                manjian: { threshold: getNum('manjian-threshold'), value: getNum('manjian-value') },
+                vipDiscount: getDiscount('vip-discount'),
+                goldDiscount: getDiscount('gold-discount'),
+                extraDiscounts: extraDiscounts,
+                coupons: { c300_20: getNum('coupon-300-20'), c200_10: getNum('coupon-200-10'), extra: extraCoupons.reduce((a, b) => a + b, 0) },
+                shipping: { threshold: getNum('free-shipping-threshold'), fee: getNum('shipping-fee') }
+            };
+
+            Object.keys(itemTypes).forEach(typeKey => {
+                const itemConfig = itemTypes[typeKey];
+                if (!itemConfig.isDynamicTabContent) {
+                    const currentDefaults = itemConfig.defaults || {};
+                    inputs[typeKey] = {
+                        name: currentDefaults.name || itemConfig.key,
+                        price: parseFloat(currentDefaults.price) || 0,
+                        chars: parseInt(currentDefaults.chars) || 0,
+                        sets: parseInt(currentDefaults.sets) || 0,
+                    };
+                }
+            });
+            return inputs;
+        }
+
+        function updateItemConfigAndRecalculate(typeKeyChanged) {
+            const itemConfig = itemTypes[typeKeyChanged];
+            if (!itemConfig) return;
+            const idPrefix = itemConfig.id_prefix;
+
+            const nameInput = document.getElementById(`item-name-${idPrefix}`);
+            const priceInput = document.getElementById(`item-price-${idPrefix}`);
+            const charsInput = document.getElementById(`item-chars-${idPrefix}`);
+            const setsInput = document.getElementById(`item-sets-${idPrefix}`);
+
+            if (!itemConfig.defaults) itemConfig.defaults = {};
+
+            if (nameInput) {
+                const newName = nameInput.value || (itemConfig.defaults.name || itemConfig.key);
+                itemConfig.key = newName;
+                itemConfig.defaults.name = newName;
+            }
+            if (priceInput) {
+                itemConfig.defaults.price = priceInput.value;
+            }
+            if (charsInput) {
+                itemConfig.defaults.chars = charsInput.value;
+            }
+            if (setsInput) {
+                itemConfig.defaults.sets = setsInput.value;
+            }
+
+            updateCalculatorDisplay();
+        }
+
+        function updateCalculatorDisplay() {
+            const dynamicOpeningDisplay = document.getElementById('dynamic-items-opening-display');
+            const dynamicFinalDiscountDisplay = document.getElementById('dynamic-items-final-discount-display');
+            dynamicOpeningDisplay.innerHTML = '';
+            dynamicFinalDiscountDisplay.innerHTML = '';
+
+            Object.keys(itemTypes).forEach(typeKey => {
+                const itemConfig = itemTypes[typeKey];
+                if (itemConfig.isDynamicTabContent) return;
+
+                const idPrefix = itemConfig.id_prefix;
+                const currentName = itemConfig.key;
+
+                const price = (itemConfig.defaults && itemConfig.defaults.price !== undefined) ? itemConfig.defaults.price : '';
+                const sets = (itemConfig.defaults && itemConfig.defaults.sets !== undefined) ? itemConfig.defaults.sets : '';
+
+                let priceDisplaySpan = document.getElementById(`${idPrefix}-price-display`);
+                let priceLabel = document.getElementById(`${idPrefix}-price-label`);
+                let setsDisplaySpan = document.getElementById(`${idPrefix}-sets-display`);
+                let setsLabel = document.getElementById(`${idPrefix}-sets-label`);
+                let hrElement;
+
+                if (itemConfig.isDynamic) {
+                    hrElement = dynamicOpeningDisplay.querySelector(`hr[data-prefix="${idPrefix}"]`);
+                    if (!hrElement) {
+                        hrElement = document.createElement('hr');
+                        hrElement.dataset.prefix = idPrefix;
+                        dynamicOpeningDisplay.appendChild(hrElement);
+                    }
+
+                    if (!priceLabel) {
+                        const group1 = document.createElement('div');
+                        group1.className = 'input-group';
+                        priceLabel = document.createElement('label');
+                        priceLabel.id = `${idPrefix}-price-label`;
+                        priceDisplaySpan = document.createElement('span');
+                        priceDisplaySpan.id = `${idPrefix}-price-display`;
+                        priceDisplaySpan.className = 'display-field';
+                        group1.appendChild(priceLabel);
+                        group1.appendChild(priceDisplaySpan);
+                        dynamicOpeningDisplay.appendChild(group1);
+                    }
+                    if (!setsLabel) {
+                        const group2 = document.createElement('div');
+                        group2.className = 'input-group';
+                        setsLabel = document.createElement('label');
+                        setsLabel.id = `${idPrefix}-sets-label`;
+                        setsDisplaySpan = document.createElement('span');
+                        setsDisplaySpan.id = `${idPrefix}-sets-display`;
+                        setsDisplaySpan.className = 'display-field';
+                        group2.appendChild(setsLabel);
+                        group2.appendChild(setsDisplaySpan);
+                        dynamicOpeningDisplay.appendChild(group2);
+                    }
+                }
+
+                if (priceDisplaySpan) priceDisplaySpan.textContent = price;
+                if (priceLabel) priceLabel.textContent = `${currentName} - 价格`;
+                if (setsDisplaySpan) setsDisplaySpan.textContent = sets;
+                if (setsLabel) setsLabel.textContent = `${currentName} - ${itemConfig.setsLabel || (itemConfig.hasSets ? '配数' : '')}`;
+
+
+                let finalPriceNameDisplay = document.getElementById(`final-${idPrefix}-name-display`);
+                let finalPriceField = document.getElementById(itemConfig.avgPriceId);
+
+                if (itemConfig.isDynamic) {
+                    if (!finalPriceNameDisplay) {
+                        const p = document.createElement('p');
+                        finalPriceNameDisplay = document.createElement('span');
+                        finalPriceNameDisplay.id = `final-${idPrefix}-name-display`;
+                        finalPriceField = document.createElement('span');
+                        finalPriceField.id = itemConfig.avgPriceId;
+                        finalPriceField.className = 'result-field';
+                        finalPriceField.textContent = '0.00';
+
+                        p.appendChild(finalPriceNameDisplay);
+                        p.append("均价: ");
+                        p.appendChild(finalPriceField);
+                        p.append(" 元");
+                        dynamicFinalDiscountDisplay.appendChild(p);
+                    }
+                }
+
+                if (finalPriceNameDisplay) finalPriceNameDisplay.textContent = currentName;
+
+                const tabButton = document.querySelector(`.item-tab-button[data-tab="${typeKey}"]`);
+                if (tabButton) tabButton.textContent = `【${currentName}】`;
+
+                const tableH3 = document.querySelector(`#table-${typeKey} h3`);
+                if (tableH3) {
+                    let tooltipSpan = tableH3.querySelector('.tooltip-trigger');
+                    if (tooltipSpan) {
+                        tableH3.childNodes[0].nodeValue = `${currentName} 排表 `;
+                    } else {
+                        tableH3.textContent = `${currentName} 排表`;
+                    }
+                }
+            });
+        }
+
+        function handleCharacterCountChangeAndCalc(typeKeyChanged) {
+            const itemConfig = itemTypes[typeKeyChanged];
+
+            if (!itemConfig || itemConfig.isDynamicTabContent || !itemConfig.hasChars) {
+                return;
+            }
+
+            const idPrefix = itemConfig.id_prefix;
+            const tableBody = document.querySelector(`#data-table-${typeKeyChanged} tbody`);
+            const charCountInput = document.getElementById(`item-chars-${idPrefix}`);
+            const newCharCount = parseInt(charCountInput.value) || 0;
+
+            if (itemConfig.defaults) {
+                itemConfig.defaults.chars = newCharCount.toString();
+            }
+
+            if (!tableBody) {
+                return;
+            }
+            const currentRows = Array.from(tableBody.rows);
+            const currentRowCount = currentRows.length;
+
+            if (newCharCount > currentRowCount) {
+                for (let i = currentRowCount; i < newCharCount; i++) {
+                    const newRow = tableBody.insertRow();
+                    populateTableRow(newRow, typeKeyChanged, i, {});
+                }
+            } else if (newCharCount < currentRowCount) {
+                let proceedWithRemoval = true;
+                for (let i = currentRowCount - 1; i >= newCharCount; i--) {
+                    let hasData = false;
+                    currentRows[i].querySelectorAll('.dist-entry').forEach(entry => {
+                        if (entry.querySelector('.dist-name').value.trim() ||
+                            (parseInt(entry.querySelector('.dist-quantity').value) || 0) > 0) {
+                            hasData = true;
+                        }
+                    });
+                    const charNameInput = currentRows[i].querySelector('input[placeholder="角色名..."]');
+                    if (charNameInput && charNameInput.value.trim()) hasData = true;
+                    const adjPriceInput = currentRows[i].querySelector('.adj-price');
+                    if (adjPriceInput && (parseFloat(adjPriceInput.value) || 0) !== 0) hasData = true;
+
+
+                    if (hasData) {
+                        if (!confirm(`角色"${charNameInput?.value || `行 ${i + 1}`}" 的排表或调价数据将被删除，确定更改角色数吗？`)) {
+                            charCountInput.value = currentRowCount;
+                            if (itemConfig.defaults) itemConfig.defaults.chars = currentRowCount.toString();
+                            proceedWithRemoval = false;
+                            break;
+                        }
+                    }
+                }
+                if (proceedWithRemoval) {
+                    for (let i = currentRowCount - 1; i >= newCharCount; i--) {
+                        tableBody.deleteRow(i);
+                    }
+                }
+            }
+        }
+
+        function calculateAll() {
+            updateCalculatorDisplay();
+            const inputs = getInputs();
+
+            const singleItemTotal = calculateSingleItemTotal();
+            let mainItemsTotal = 0;
+            Object.keys(itemTypes).forEach(typeKey => {
+                const itemDef = itemTypes[typeKey];
+                if (!itemDef.isDynamicTabContent && inputs[typeKey]) {
+                    mainItemsTotal += inputs[typeKey].price * inputs[typeKey].sets;
+                }
+            });
+
+            const pass1Data = inputs['pass1'];
+            const pass2Data = inputs['pass2'];
+            const passTotalVal = (pass1Data ? pass1Data.price * pass1Data.sets : 0) +
+                (pass2Data ? pass2Data.price * pass2Data.sets : 0);
+
+            const totalExcludingPass = mainItemsTotal - passTotalVal + singleItemTotal;
+            const totalBeforeDiscount = mainItemsTotal + singleItemTotal;
+
+            document.getElementById('single-item-total').textContent = singleItemTotal.toFixed(2);
+            document.getElementById('total-excluding-pass').textContent = totalExcludingPass.toFixed(2);
+            document.getElementById('total-before-discount').textContent = totalBeforeDiscount.toFixed(2);
+
+            let allItems = [];
+            let itemId = 0;
+            const addItemToList = (name, price, count) => {
+                for (let i = 0; i < count; i++) {
+                    if (price > 0) allItems.push({ id: itemId++, name, price });
+                }
+            };
+
+            Object.keys(itemTypes).forEach(typeKey => {
+                const itemDef = itemTypes[typeKey];
+                if (!itemDef.isDynamicTabContent && inputs[typeKey]) {
+                    addItemToList(inputs[typeKey].name, inputs[typeKey].price, inputs[typeKey].sets);
+                }
+            });
+
+            document.querySelectorAll('#data-table-single tbody tr').forEach(row => {
+                const name = row.querySelector('input[data-type="kind"]').value;
+                const price = parseFloat(row.querySelector('input[data-type="price"]').value) || 0;
+                const totalQty = Object.values(getDistributionFromInputs(row)).reduce((a, b) => a + b, 0);
+                addItemToList(`单领-${name}`, price, totalQty);
+            });
+
+            lastOrderPlan = calculateOrderPlan(allItems, inputs);
+            displayOrderPlan(lastOrderPlan, inputs);
+
+            let totalBonusValueForDiscount = 0;
+            if (inputs.bonus1.manual_count !== '' && inputs.bonus1.manual_count !== null) {
+                totalBonusValueForDiscount += parseFloat(inputs.bonus1.manual_count) * inputs.bonus1.value;
+            } else {
+                totalBonusValueForDiscount += lastOrderPlan.bonusCounts[1] * inputs.bonus1.value;
+            }
+            if (inputs.bonus2.manual_count !== '' && inputs.bonus2.manual_count !== null) {
+                totalBonusValueForDiscount += parseFloat(inputs.bonus2.manual_count) * inputs.bonus2.value;
+            } else {
+                totalBonusValueForDiscount += lastOrderPlan.bonusCounts[2] * inputs.bonus2.value;
+            }
+            if (inputs.bonus3.enabled && inputs.bonus3.manual_count !== '' && inputs.bonus3.manual_count !== null) {
+                totalBonusValueForDiscount += parseFloat(inputs.bonus3.manual_count) * inputs.bonus3.value;
+            } else if (inputs.bonus3.enabled) {
+                totalBonusValueForDiscount += lastOrderPlan.bonusCounts[3] * inputs.bonus3.value;
+            }
+            document.getElementById('bonus-total-value').textContent = totalBonusValueForDiscount.toFixed(2);
+
+            let currentPrice = totalBeforeDiscount;
+            const manjianReductionAmount = (inputs.manjian.threshold > 0 && totalBeforeDiscount >= inputs.manjian.threshold && inputs.manjian.value > 0)
+                ? Math.floor(totalBeforeDiscount / inputs.manjian.threshold) * inputs.manjian.value
+                : 0;
+            let extraDiscountMultiplier = 1;
+            inputs.extraDiscounts.forEach(d => extraDiscountMultiplier *= d);
+            currentPrice = currentPrice * extraDiscountMultiplier;
+            currentPrice = currentPrice - manjianReductionAmount;
+            const totalCouponDiscount = (inputs.coupons.c300_20 * 20) + (inputs.coupons.c200_10 * 10) + inputs.coupons.extra;
+            currentPrice = currentPrice - totalCouponDiscount;
+            currentPrice = currentPrice * inputs.vipDiscount;
+            currentPrice = currentPrice * inputs.goldDiscount;
+            currentPrice = Math.max(0, currentPrice);
+            currentPrice = Math.ceil(currentPrice * 100) / 100;
+
+            const totalAfterDiscountResult = currentPrice + lastOrderPlan.totalShippingFee - totalBonusValueForDiscount;
+
+            document.getElementById('total-after-discount').textContent = totalAfterDiscountResult.toFixed(2);
+            const finalDiscountRate = totalBeforeDiscount > 0 ? totalAfterDiscountResult / totalBeforeDiscount : 1;
+            document.getElementById('final-discount-rate').textContent = totalBeforeDiscount > 0 ? finalDiscountRate.toFixed(4) : 'N/A';
+
+            updateFinalPrices(finalDiscountRate, inputs);
+            updateBonusGapInfo(totalBeforeDiscount, inputs, lastOrderPlan);
+            updateAllTablePrices();
+        }
+
+        function calculateSingleItemTotal() {
+            let total = 0;
+            const singleTableBody = document.querySelector('#data-table-single tbody');
+            if (singleTableBody) {
+                singleTableBody.querySelectorAll('tr').forEach(row => {
+                    const price = parseFloat(row.querySelector('input[data-type="price"]').value) || 0;
+                    const distribution = getDistributionFromInputs(row);
+                    const quantity = Object.values(distribution).reduce((sum, q) => sum + q, 0);
+                    total += price * quantity;
+                });
+            }
+            return total;
+        }
+
+        function updateFinalPrices(finalDiscountRate, inputs) {
+            if (finalDiscountRate === 'N/A' || isNaN(finalDiscountRate)) finalDiscountRate = 1.0;
+            const ceil2 = val => Math.ceil(val * 100) / 100;
+
+            Object.keys(itemTypes).forEach(typeKey => {
+                const itemConfig = itemTypes[typeKey];
+                if (itemConfig.isDynamicTabContent || !inputs[typeKey]) return;
+
+                const itemData = inputs[typeKey];
+                const avgPriceId = itemConfig.avgPriceId;
+
+                const finalPriceField = document.getElementById(avgPriceId);
+                if (!finalPriceField) {
+                    return;
+                }
+
+                if (itemConfig.isSticker) {
+                    const stickerSingleAvg = (itemData.price / 16) * finalDiscountRate;
+                    const stickerPairAvg = (itemData.price / 8) * finalDiscountRate;
+                    document.getElementById('final-sticker-single-price').textContent = ceil2(stickerSingleAvg).toFixed(2);
+                    finalPriceField.textContent = ceil2(stickerPairAvg).toFixed(2);
+                } else {
+                    const avgPrice = itemData.chars > 0 ? (itemData.price / itemData.chars) * finalDiscountRate : 0;
+                    finalPriceField.textContent = ceil2(avgPrice).toFixed(2);
+                }
+            });
+        }
+
+        function calculateOrderPlan(items, inputs) {
+            if (items.length === 0) {
+                return { orders: [], totalBonusValue: 0, totalShippingFee: 0, bonusCounts: { 1: 0, 2: 0, 3: 0 }, isolatedOrderInfo: null };
+            }
+
+            const getBonusInfoForAmount = (amount) => {
+                let bonus = { value: 0, tiers: [], highest_tier: 0 };
+                if (inputs.bonus3.enabled && inputs.bonus3.threshold > 0 && amount >= inputs.bonus3.threshold) {
+                    bonus.value += inputs.bonus3.value; bonus.tiers.push(3); bonus.highest_tier = 3;
+                }
+                if (inputs.bonus2.threshold > 0 && amount >= inputs.bonus2.threshold) {
+                    bonus.value += inputs.bonus2.value; bonus.tiers.push(2);
+                    if (bonus.highest_tier < 2) bonus.highest_tier = 2;
+                }
+                if (amount > 0.001 && inputs.bonus1.value > 0) {
+                    bonus.value += inputs.bonus1.value; bonus.tiers.push(1);
+                    if (bonus.highest_tier < 1) bonus.highest_tier = 1;
+                }
+                bonus.tiers = [...new Set(bonus.tiers)].sort((a, b) => a - b);
+                return bonus;
+            };
+            const getShipping = (amount) => (inputs.shipping.threshold > 0 && amount > 0.001 && amount < inputs.shipping.threshold) ? inputs.shipping.fee : 0;
+            const getNetBenefit = (orderTotal) => getBonusInfoForAmount(orderTotal).value - getShipping(orderTotal);
+            const getNetBenefitForOrderList = (orderList) => orderList.reduce((sum, order) => sum + getNetBenefit(order.total), 0);
+
+            const solveForKOrders = (k, currentItems) => {
+                let orders = Array.from({ length: k }, () => ({ items: [], total: 0 }));
+                let sortedItems = [...currentItems].sort((a, b) => b.price - a.price);
+
+                sortedItems.forEach(item => {
+                    orders.sort((a, b) => a.total - b.total);
+                    orders[0].items.push(item);
+                    orders[0].total += item.price;
+                });
+
+                for (let iter = 0; iter < items.length * k * 2; iter++) {
+                    let moved = false;
+                    for (let i = 0; i < k; i++) {
+                        for (let j = 0; j < k; j++) {
+                            if (i === j) continue;
+                            for (let itemIdx = 0; itemIdx < orders[i].items.length; itemIdx++) {
+                                const item = orders[i].items[itemIdx];
+                                const currentBenefitOfPair = getNetBenefit(orders[i].total) + getNetBenefit(orders[j].total);
+                                const newBenefitIfMoved = getNetBenefit(orders[i].total - item.price) + getNetBenefit(orders[j].total + item.price);
+
+                                if (newBenefitIfMoved > currentBenefitOfPair) {
+                                    orders[j].items.push(item);
+                                    orders[j].total += item.price;
+                                    orders[i].items.splice(itemIdx, 1);
+                                    orders[i].total -= item.price;
+                                    moved = true;
+                                    break;
+                                }
+                            }
+                            if (moved) break;
+                        }
+                        if (moved) break;
+                    }
+                    if (!moved) break;
+                }
+                return orders.filter(o => o.items.length > 0);
+            };
+
+            const totalValue = items.reduce((sum, item) => sum + item.price, 0);
+            const maxK = Math.min(items.length, Math.max(1, Math.floor(totalValue / (inputs.shipping.threshold || 100)) + 3, 7));
+
+            let bestSolution = { orders: [{ items: [...items], total: totalValue }], benefit: -Infinity };
+            bestSolution.benefit = getNetBenefitForOrderList(bestSolution.orders);
+
+            for (let k = 1; k <= maxK; k++) {
+                let ordersAttempt = solveForKOrders(k, items);
+                if (ordersAttempt.reduce((sum, o) => sum + o.items.length, 0) !== items.length && items.length > 0) continue;
+
+                let currentBenefit = getNetBenefitForOrderList(ordersAttempt);
+                if (currentBenefit > bestSolution.benefit) {
+                    bestSolution = { orders: ordersAttempt, benefit: currentBenefit };
+                }
+            }
+
+            let skimmedOrdersIntermediate = [];
+            let potentialIsolatedItems = [];
+
+            for (const order of bestSolution.orders) {
+                if (!order.items || order.items.length === 0) continue;
+
+                let currentOrderItems = [...order.items];
+                let currentOrderTotal = order.total;
+                const initialBonusInfo = getBonusInfoForAmount(currentOrderTotal);
+                const initialShippingFree = getShipping(currentOrderTotal) === 0;
+
+                currentOrderItems.sort((a, b) => a.price - b.price);
+
+                let finalKeptItemsForThisOrder = [...currentOrderItems];
+
+                for (let i = 0; i < finalKeptItemsForThisOrder.length; i++) {
+                    const itemToTestSkim = finalKeptItemsForThisOrder[i];
+                    const tempTotalWithoutItem = finalKeptItemsForThisOrder.reduce((sum, it) => sum + it.price, 0) - itemToTestSkim.price;
+
+                    if (tempTotalWithoutItem <= 0.001 && finalKeptItemsForThisOrder.length > 1) {
+                    } else if (tempTotalWithoutItem <= 0.001 && finalKeptItemsForThisOrder.length === 1) {
+                    } else {
+                        const newBonusInfoAfterSkim = getBonusInfoForAmount(tempTotalWithoutItem);
+                        const newShippingFreeAfterSkim = getShipping(tempTotalWithoutItem) === 0;
+
+                        if (JSON.stringify(newBonusInfoAfterSkim.tiers) === JSON.stringify(initialBonusInfo.tiers) &&
+                            newShippingFreeAfterSkim === initialShippingFree) {
+                            potentialIsolatedItems.push(itemToTestSkim);
+                            finalKeptItemsForThisOrder.splice(i, 1);
+                            i--;
+                        }
+                    }
+                }
+
+                if (finalKeptItemsForThisOrder.length > 0) {
+                    skimmedOrdersIntermediate.push({ items: finalKeptItemsForThisOrder, total: finalKeptItemsForThisOrder.reduce((s, i) => s + i.price, 0) });
+                } else if (order.items.length > 0) {
+                    potentialIsolatedItems.push(...order.items);
+                }
+            }
+
+            let finalOrders = skimmedOrdersIntermediate.filter(o => o.items.length > 0 && o.total > 0.001);
+            let isolatedOrderInfo = null;
+
+            if (potentialIsolatedItems.length > 0) {
+                const isolatedTotal = potentialIsolatedItems.reduce((sum, item) => sum + item.price, 0);
+                const netBenefitOfIsolated = getNetBenefit(isolatedTotal);
+
+                if (netBenefitOfIsolated >= 0 && isolatedTotal > 0.001) {
+                    finalOrders.push({ items: [...potentialIsolatedItems], total: isolatedTotal });
+                } else if (isolatedTotal > 0.001) {
+                    isolatedOrderInfo = { totalAmount: isolatedTotal, itemCount: potentialIsolatedItems.length, items: [...potentialIsolatedItems] };
+
+                    if (finalOrders.length > 0) {
+                        finalOrders.sort((a, b) => {
+                            const aOver = a.total >= inputs.shipping.threshold;
+                            const bOver = b.total >= inputs.shipping.threshold;
+                            if (aOver && !bOver) return -1;
+                            if (!aOver && bOver) return 1;
+                            return a.total - b.total;
+                        });
+                        let targetOrderIndex = 0;
+                        for (let i = 0; i < finalOrders.length; i++) {
+                            if (finalOrders[i].total >= inputs.shipping.threshold) {
+                                targetOrderIndex = i;
+                                break;
+                            }
+                        }
+
+                        finalOrders[targetOrderIndex].items.push(...potentialIsolatedItems);
+                        finalOrders[targetOrderIndex].total += isolatedTotal;
+                    } else {
+                        finalOrders.push({ items: [...potentialIsolatedItems], total: isolatedTotal });
+                    }
+                }
+            }
+
+            let totalBonusValue = 0, totalShippingFee = 0;
+            let bonusCounts = { 1: 0, 2: 0, 3: 0 };
+            finalOrders.forEach(order => {
+                const bonus = getBonusInfoForAmount(order.total);
+                order.bonus = bonus;
+                totalBonusValue += bonus.value;
+                bonus.tiers.forEach(tier => { if (bonusCounts[tier] !== undefined) bonusCounts[tier]++; });
+                order.shipping = getShipping(order.total);
+                totalShippingFee += order.shipping;
+            });
+
+            return { orders: finalOrders, totalBonusValue, totalShippingFee, bonusCounts, isolatedOrderInfo };
+        }
+
+        function displayOrderPlan(plan, inputs) {
+            const outputDiv = document.getElementById('order-plan-output');
+            if (!plan || !plan.orders || plan.orders.length === 0) {
+                outputDiv.textContent = "无商品，无法生成方案。";
+                document.getElementById('bonus1-count').textContent = 0;
+                document.getElementById('bonus2-count').textContent = 0;
+                document.getElementById('bonus3-count').textContent = 0;
+                return;
+            }
+
+            let html = `最佳方案建议分 ${plan.orders.length} 单（总净收益参考: ${(plan.totalBonusValue - plan.totalShippingFee).toFixed(2)}元）\n\n`;
+            plan.orders.sort((a, b) => b.total - a.total).forEach((order, index) => {
+                html += `--- 订单 ${index + 1} ---\n`;
+                html += `金额: ${order.total.toFixed(2)} 元\n`;
+                const itemSummary = {};
+                order.items.forEach(item => {
+                    itemSummary[item.name] = (itemSummary[item.name] || 0) + 1;
+                });
+                const itemStrings = Object.entries(itemSummary).map(([name, count]) => `${name} x${count}`);
+                html += `商品: ${itemStrings.join(', ')}\n`;
+                let bonusText = order.bonus.tiers.length > 0 ? `获得 ${order.bonus.tiers.join('、')} 档特典 (价值 ${order.bonus.value.toFixed(2)} 元)` : "无特典";
+                html += `特典: ${bonusText}\n`;
+                let shippingText = order.shipping > 0 ? `需要邮费 ${order.shipping.toFixed(2)} 元` : "包邮";
+                html += `邮费: ${shippingText}\n\n`;
+            });
+
+            html += `--- 方案总结 ---\n`;
+            html += `总邮费: ${plan.totalShippingFee.toFixed(2)} 元\n`;
+            html += `特典详情 (参考): 一档x${plan.bonusCounts[1]}, 二档x${plan.bonusCounts[2]}, 三档x${plan.bonusCounts[3]}\n`;
+            html += `特典总价值 (参考): ${plan.totalBonusValue.toFixed(2)} 元\n`;
+            if (plan.isolatedOrderInfo && plan.isolatedOrderInfo.totalAmount > 0) {
+                html += `\n注意: 方案中存在 ${plan.isolatedOrderInfo.totalAmount.toFixed(2)} 元的零碎谷 (含 ${plan.isolatedOrderInfo.itemCount} 件商品)，因无法独立产生正净收益，已尝试合并。`;
+            }
+            outputDiv.textContent = html;
+
+            document.getElementById('bonus1-count').textContent = plan.bonusCounts[1];
+            document.getElementById('bonus2-count').textContent = plan.bonusCounts[2];
+            document.getElementById('bonus3-count').textContent = plan.bonusCounts[3];
+        }
+
+        function updateBonusGapInfo(preDiscountTotalFromUI, inputs, plan) {
+            const infoDiv = document.getElementById('bonus-gap-info');
+            if (!plan) {
+                infoDiv.textContent = '无法生成方案或无商品可规划。';
+                return;
+            }
+
+            let messages = [];
+            const getBonusInfoForAmount = (amount) => {
+                let bonus = { value: 0, tiers: [] };
+                if (inputs.bonus3.enabled && inputs.bonus3.threshold > 0 && amount >= inputs.bonus3.threshold) {
+                    bonus.value += inputs.bonus3.value; bonus.tiers.push(3);
+                }
+                if (inputs.bonus2.threshold > 0 && amount >= inputs.bonus2.threshold) {
+                    bonus.value += inputs.bonus2.value; bonus.tiers.push(2);
+                }
+                if (amount > 0.001 && inputs.bonus1.value > 0) {
+                    bonus.value += inputs.bonus1.value; bonus.tiers.push(1);
+                }
+                bonus.tiers = [...new Set(bonus.tiers)].sort((a, b) => a - b);
+                return bonus;
+            };
+
+            if (plan.isolatedOrderInfo && plan.isolatedOrderInfo.totalAmount > 0) {
+                const { totalAmount, itemCount } = plan.isolatedOrderInfo;
+                messages.push(`当前凑单方案存在 ${totalAmount.toFixed(2)} 元的零碎谷 (含${itemCount}件商品)，已尝试合并到其他订单。`);
+
+                const allAvailableTiersForIsolated = [];
+                if (inputs.shipping.threshold > 0 && totalAmount < inputs.shipping.threshold) {
+                    allAvailableTiersForIsolated.push({ level_desc: `包邮 (${inputs.shipping.threshold.toFixed(2)}元)`, threshold: inputs.shipping.threshold, level: 0.5 });
+                }
+                if (inputs.bonus1.value > 0) {
+                    const thresholdForB1AndShipping = inputs.shipping.threshold > 0 ? Math.max(0.01, inputs.shipping.threshold) : 0.01;
+                    if (totalAmount < thresholdForB1AndShipping) {
+                        allAvailableTiersForIsolated.push({ level_desc: `一档特典 (+包邮 if applicable)`, threshold: thresholdForB1AndShipping, level: 1 });
+                    }
+                }
+                if (inputs.bonus2.threshold > 0 && totalAmount < inputs.bonus2.threshold) {
+                    allAvailableTiersForIsolated.push({ level: 2, threshold: inputs.bonus2.threshold, level_desc: "二档" });
+                }
+                if (inputs.bonus3.enabled && inputs.bonus3.threshold > 0 && totalAmount < inputs.bonus3.threshold) {
+                    allAvailableTiersForIsolated.push({ level: 3, threshold: inputs.bonus3.threshold, level_desc: "三档" });
+                }
+                allAvailableTiersForIsolated.sort((a, b) => a.threshold - b.threshold);
+
+                const nextTierForIsolated = allAvailableTiersForIsolated.find(t => t.threshold > totalAmount);
+                if (nextTierForIsolated) {
+                    const gap = nextTierForIsolated.threshold - totalAmount;
+                    messages.push(` -> 这部分零碎谷距离独立成单并达到"${nextTierForIsolated.level_desc}"还差 ${gap.toFixed(2)}元。`);
+                } else if (getBonusInfoForAmount(totalAmount).value - ((inputs.shipping.threshold > 0 && totalAmount < inputs.shipping.threshold) ? inputs.shipping.fee : 0) < 0) {
+                    messages.push(` -> 这部分零碎谷即使独立也无法产生正净收益。`);
+                }
+            }
+
+            plan.orders.forEach((order, index) => {
+                const currentOrderBonusInfo = getBonusInfoForAmount(order.total);
+                const allAvailableTiersForOrder = [];
+                if (inputs.shipping.threshold > 0 && order.shipping > 0 && order.total < inputs.shipping.threshold) {
+                    allAvailableTiersForOrder.push({ level: 0.5, threshold: inputs.shipping.threshold, name: "包邮" });
+                }
+                if (inputs.bonus2.threshold > 0 && !currentOrderBonusInfo.tiers.includes(2) && order.total < inputs.bonus2.threshold) {
+                    allAvailableTiersForOrder.push({ level: 2, threshold: inputs.bonus2.threshold, name: "二档" });
+                }
+                if (inputs.bonus3.enabled && inputs.bonus3.threshold > 0 && !currentOrderBonusInfo.tiers.includes(3) && order.total < inputs.bonus3.threshold) {
+                    allAvailableTiersForOrder.push({ level: 3, threshold: inputs.bonus3.threshold, name: "三档" });
+                }
+                allAvailableTiersForOrder.sort((a, b) => a.threshold - b.threshold);
+
+                const nextTierForOrder = allAvailableTiersForOrder[0];
+
+                if (nextTierForOrder) {
+                    const gap = nextTierForOrder.threshold - order.total;
+                    if (gap > 0.001) {
+                        messages.push(`订单 ${index + 1} (${order.total.toFixed(2)}元) 距离更高档(${nextTierForOrder.name}特典/包邮, ${nextTierForOrder.threshold.toFixed(2)}元)还差 ${gap.toFixed(2)}元。`);
+                    }
+                }
+            });
+
+            if (messages.length === 0 && plan.orders.length > 0) {
+                messages.push("所有订单均已满足所有可用特典门槛或无更高门槛/包邮。");
+            } else if (plan.orders.length === 0 && (!plan.isolatedOrderInfo || plan.isolatedOrderInfo.totalAmount === 0)) {
+                messages.push("无商品或订单，无法提供凑单建议。");
+            }
+
+            infoDiv.textContent = messages.join('\n');
+        }
+
+        function generateTables(savedTableRows) {
+            const tabsContainer = document.getElementById('item-tabs');
+            const tablesContainer = document.getElementById('item-tables-container');
+            tabsContainer.innerHTML = '';
+            tablesContainer.innerHTML = '';
+
+            let currentOrderedTabs = [...orderedTypesForTabs];
+            currentOrderedTabs = currentOrderedTabs.filter(typeKey => itemTypes[typeKey]);
+
+            Object.keys(itemTypes).forEach(typeKey => {
+                if (!currentOrderedTabs.includes(typeKey)) {
+                    if (itemTypes[typeKey].isDynamicTabContent) {
+                        currentOrderedTabs.push(typeKey);
+                    } else {
+                        const insertBeforeIdx = currentOrderedTabs.findIndex(k => itemTypes[k] && itemTypes[k].isDynamicTabContent);
+                        if (insertBeforeIdx !== -1) currentOrderedTabs.splice(insertBeforeIdx, 0, typeKey);
+                        else currentOrderedTabs.push(typeKey);
+                    }
+                }
+            });
+            orderedTypesForTabs = [...new Set(currentOrderedTabs)];
+
+            let firstItemTabKey = null;
+
+            orderedTypesForTabs.forEach((typeKey) => {
+                const itemConfig = itemTypes[typeKey];
+                if (!itemConfig) return;
+
+                if (firstItemTabKey === null) firstItemTabKey = typeKey;
+
+                const idPrefix = itemConfig.id_prefix;
+                const defaults = itemConfig.defaults || { name: itemConfig.key, price: '', chars: '', sets: '' };
+
+                let currentDisplayName = defaults.name || itemConfig.key;
+                let currentPrice = defaults.price;
+                let currentChars = defaults.chars;
+                let currentSets = defaults.sets;
+
+                const button = document.createElement('button');
+                button.className = `item-tab-button`;
+                button.textContent = `【${currentDisplayName}】`;
+                button.dataset.tab = typeKey;
+                button.onclick = () => showItemTab(typeKey);
+                tabsContainer.appendChild(button);
+
+                const tableDiv = document.createElement('div');
+                tableDiv.id = `table-${typeKey}`;
+                tableDiv.className = `item-tab-content`;
+
+                let configHTML = '';
+                if (!itemConfig.isDynamicTabContent) {
+                    configHTML += `<div class="item-config-header">
+                <div class="input-group"><label>商品名</label><input type="text" id="item-name-${idPrefix}" value="${currentDisplayName}" oninput="updateItemConfigAndRecalculate('${typeKey}')"></div>
+                <div class="input-group"><label>价格</label><input type="number" id="item-price-${idPrefix}" value="${currentPrice}" oninput="updateItemConfigAndRecalculate('${typeKey}')"></div>`;
+                    if (itemConfig.hasChars) {
+                        configHTML += `<div class="input-group"><label>角色数</label><input type="number" id="item-chars-${idPrefix}" value="${currentChars}" min="0" oninput="handleCharacterCountChangeAndCalc('${typeKey}')"></div>`;
+                    }
+                    if (itemConfig.hasSets) {
+                        configHTML += `<div class="input-group"><label>${itemConfig.setsLabel || '配数'}</label><input type="number" id="item-sets-${idPrefix}" value="${currentSets}" min="0" oninput="updateItemConfigAndRecalculate('${typeKey}')"></div>`;
+                    }
+                    if (itemConfig.isDynamic) {
+                        configHTML += `<button class="remove-btn-text" style="font-size:1em; padding:5px; background-color:var(--accent-color); color:white; border-radius:4px;" onclick="removeDynamicItemType('${typeKey}')">删除此商品类型</button>`;
+                    }
+                    configHTML += `</div>`;
+                }
+
+                let tableTitle = `${currentDisplayName} 排表`;
+                let tableHTMLContent = `<div class="table-scroll-wrapper"><table id="data-table-${typeKey}"><thead><tr>`;
+                if (itemConfig.isSticker) tableHTMLContent += `<th class="col-name">角色/种类</th><th class="col-status">状态</th><th class="col-value">均价</th><th class="col-value">调价 <span id="调价提醒-${typeKey}" class="warning-text"></span></th><th class="col-value">终价</th><th class="col-distribution">排表</th><th class="col-value">余量</th><th class="col-operation">操作</th>`;
+                else if (typeKey === 'bonus') tableHTMLContent += `<th class="col-name">档次</th><th class="col-name">种类</th><th class="col-value">价值</th><th class="col-value">调价 <span id="调价提醒-${typeKey}" class="warning-text"></span></th><th class="col-value">终价</th><th class="col-distribution">排表</th><th class="col-value">余量</th><th class="col-operation">操作</th>`;
+                else if (typeKey === 'single') tableHTMLContent += `<th class="col-name">种类</th><th class="col-value">原价</th><th class="col-value">折后价</th><th class="col-distribution">排表</th><th class="col-operation">操作</th>`;
+                else tableHTMLContent += `<th class="col-name">角色</th><th class="col-value">均价</th><th class="col-value">调价 <span id="调价提醒-${typeKey}" class="warning-text"></span></th><th class="col-value">终价</th><th class="col-distribution">排表</th><th class="col-value">余量</th>`;
+
+                tableHTMLContent += `</tr></thead><tbody></tbody></table></div>`;
+
+                if (itemConfig.isDynamicTabContent) {
+                    tableHTMLContent += `<button class="add-row-btn" onclick="addDynamicRow('${typeKey}')">添加一行</button>`;
+                }
+                tableHTMLContent += `<button onclick="calculatePageBill('${typeKey}')">计算本页肾表</button><div id="page-bill-${typeKey}" class="info-text" style="white-space: pre-wrap;"></div>`;
+
+                tableDiv.innerHTML = configHTML + `<h3>${tableTitle}</h3>` + tableHTMLContent;
+                tablesContainer.appendChild(tableDiv);
+
+                const tableBody = document.querySelector(`#data-table-${typeKey} tbody`);
+                const currentSavedTableRowsForType = savedTableRows ? savedTableRows[itemConfig.key] : null;
+
+                if (currentSavedTableRowsForType && currentSavedTableRowsForType.length > 0) {
+                    currentSavedTableRowsForType.forEach((rowData, i) => {
+                        const newRow = tableBody.insertRow();
+                        populateTableRow(newRow, typeKey, i, rowData);
+                    });
+                }
+
+                if (!itemConfig.isDynamicTabContent && itemConfig.hasChars) {
+                    const targetCharCount = parseInt(itemConfig.defaults.chars) || 0;
+                    const currentRowCount = tableBody.rows.length;
+                    if (targetCharCount > currentRowCount) {
+                        for (let i = currentRowCount; i < targetCharCount; i++) {
+                            const newRow = tableBody.insertRow();
+                            populateTableRow(newRow, typeKey, i, {});
+                        }
+                    }
+                } else if (typeKey === 'single' && (!currentSavedTableRowsForType || currentSavedTableRowsForType.length === 0)) {
+                    addDefaultSingleItems();
+                }
+            });
+
+            const addNewButton = document.createElement('button');
+            addNewButton.textContent = '+ 新增商品类型';
+            addNewButton.className = 'item-tab-button add-new-item-type-btn';
+            addNewButton.onclick = addNewCustomItemType;
+            tabsContainer.appendChild(addNewButton);
+
+            if (firstItemTabKey) {
+                showItemTab(firstItemTabKey);
+            } else if (orderedTypesForTabs.length > 0) {
+                const firstValidTab = orderedTypesForTabs.find(key => itemTypes[key]);
+                if (firstValidTab) showItemTab(firstValidTab);
+            }
+        }
+
+        function populateTableRow(row, typeKey, index, data) {
+            const itemConfig = itemTypes[typeKey];
+            row.dataset.type = typeKey;
+            row.dataset.index = index;
+            row.dataset.splitCount = data.splitCount || 1;
+            const onInputDist = 'oninput="updateAllRemainingQuantities()"';
+            const onKeyDown = `handleDistroInput(event, '${typeKey}')`;
+
+            const distCellContent = (distDataArray = []) => {
+                let content = `<div class="distribution-container">`;
+                let currentDistData = Array.isArray(distDataArray) ? distDataArray : [];
+                if (currentDistData.length === 0) {
+                    currentDistData = [{ name: '', quantity: '' }];
+                }
+                currentDistData.forEach(d => {
+                    const currentName = (typeof d === 'object' && d !== null && d.name !== undefined) ? d.name : '';
+                    const currentQuantity = (typeof d === 'object' && d !== null && d.quantity !== undefined) ? d.quantity : '';
+                    content += `<div class="dist-entry"><input type="text" class="dist-name" placeholder="名字" value="${currentName}" onkeydown="${onKeyDown}"><input type="number" class="dist-quantity" placeholder="数量" min="0" value="${currentQuantity}" onkeydown="${onKeyDown}" ${onInputDist}><button type="button" class="remove-btn-text" onclick="removeDistributionEntry(this, '${typeKey}')">×</button></div>`;
+                });
+                content += `</div><button type="button" class="add-btn-text" onclick="addDistributionEntry(this, '${typeKey}')">+</button>`;
+                return content;
+            };
+
+            let rowHTML = '';
+            const distributionCellClass = 'class="distribution-cell col-distribution"';
+
+            if (itemConfig.isSticker) {
+                const isSplit = data.status?.includes('单张');
+                rowHTML = `<td class="col-name"><input type="text" placeholder="角色名..." value="${data.charName || ''}"></td><td class="col-status sticker-status">${data.status || '一对'}</td><td class="col-value avg-price">0.00</td><td class="col-value"><input type="number" class="adj-price" value="${data.adjPrice || 0}" oninput="updateRowPrice('${typeKey}', this)"></td><td class="col-value final-price">0.00</td><td ${distributionCellClass}>${distCellContent(data.distribution)}</td><td class="col-value remaining-quantity">N/A</td><td class="col-operation"><button class="split-btn" onclick="splitSticker(this.parentElement.parentElement, ${index}, '${typeKey}')">${isSplit ? '-' : '拆分'}</button></td>`;
+            } else if (typeKey === 'bonus') {
+                const isCurrentlySplittable = (parseInt(data.splitCount || 1) === 1);
+                rowHTML = `<td class="col-name"><input type="text" data-type="kind" value="${data.tier || ''}" readonly></td><td class="col-name"><input type="text" class="custom-kind" placeholder="自定义种类名..." value="${data.customKind || ''}"></td><td class="col-value"><input type="number" data-type="price" value="${data.priceForDisplay || '0.00'}" readonly></td><td class="col-value"><input type="number" class="adj-price" value="${data.adjPrice || 0}" oninput="updateRowPrice('${typeKey}', this)"></td><td class="col-value final-price">0.00</td><td ${distributionCellClass}>${distCellContent(data.distribution)}</td><td class="col-value remaining-quantity">N/A</td><td class="col-operation">${isCurrentlySplittable ? `<button class="split-btn" onclick="splitBonusRow(this, '${typeKey}')">拆分</button>` : ''}<button type="button" class="remove-btn-text" onclick="this.closest('tr').remove();">×</button></td>`;
+            } else if (typeKey === 'single') {
+                rowHTML = `<td class="col-name"><input type="text" data-type="kind" value="${data.kind || ''}"></td><td class="col-value"><input type="number" data-type="price" value="${data.price || 0}"></td><td class="col-value final-price">0.00</td><td ${distributionCellClass}>${distCellContent(data.distribution)}</td><td class="col-operation"><button type="button" class="remove-btn-text" onclick="this.parentElement.parentElement.remove();">×</button></td>`;
+            } else {
+                rowHTML = `<td class="col-name"><input type="text" placeholder="角色名..." value="${data.charName || ''}"></td><td class="col-value avg-price">0.00</td><td class="col-value"><input type="number" class="adj-price" value="${data.adjPrice || 0}" oninput="updateRowPrice('${typeKey}', this)"></td><td class="col-value final-price">0.00</td><td ${distributionCellClass}>${distCellContent(data.distribution)}</td><td class="col-value remaining-quantity">N/A</td>`;
+            }
+            row.innerHTML = rowHTML;
+        }
+
+        function addDynamicRow(typeKey) {
+            const itemConfig = itemTypes[typeKey];
+            const tableBody = document.querySelector(`#data-table-${typeKey} tbody`);
+            if (!tableBody) return;
+            const newIndex = tableBody.rows.length;
+            const newRow = tableBody.insertRow();
+            if (typeKey === 'bonus') populateTableRow(newRow, typeKey, newIndex, { tier: '自定义特典', customKind: '', priceForDisplay: '0.00', splitCount: 1 });
+            else populateTableRow(newRow, typeKey, newIndex, {});
+        }
+
+        function addDefaultSingleItems() {
+            const defaultItems = [{ kind: '[角色1]皮肤吧唧', price: 20 }, { kind: '[角色2]皮肤吧唧', price: 20 }, { kind: '[角色3]皮肤吧唧', price: 20 }, { kind: '[角色1]精一立牌', price: 50 }, { kind: '[角色2]精一立牌', price: 50 }, { kind: '[角色3]精一立牌', price: 50 }, { kind: '[角色1]吧唧组', price: 30 }, { kind: '[角色2]吧唧组', price: 30 }, { kind: '[角色3]吧唧组', price: 30 }, { kind: '[角色1]皮肤挂件', price: 35 }, { kind: '[角色2]皮肤挂件', price: 35 }];
+            const tableBody = document.querySelector('#data-table-single tbody');
+            if (!tableBody) return;
+            tableBody.innerHTML = '';
+            defaultItems.forEach((item, index) => {
+                const newRow = tableBody.insertRow();
+                populateTableRow(newRow, 'single', index, item);
+            });
+        }
+
+        function handleDistroInput(event, typeKey) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                addDistributionEntry(event.target, typeKey);
+            }
+        }
+
+        function addDistributionEntry(element, typeKey) {
+            const container = element.closest('.distribution-cell').querySelector('.distribution-container');
+            const onInput = 'oninput="updateAllRemainingQuantities()"';
+            const onKeyDown = `handleDistroInput(event, '${typeKey}')`;
+            const newEntry = document.createElement('div');
+            newEntry.className = 'dist-entry';
+            newEntry.innerHTML = `<input type="text" class="dist-name" placeholder="名字" onkeydown="${onKeyDown}"><input type="number" class="dist-quantity" placeholder="数量" min="0" value="" onkeydown="${onKeyDown}" ${onInput}><button type="button" class="remove-btn-text" onclick="removeDistributionEntry(this, '${typeKey}')">×</button>`;
+            container.appendChild(newEntry);
+            newEntry.querySelector('.dist-name').focus();
+            updateAllRemainingQuantities();
+        }
+
+        function removeDistributionEntry(button, typeKey) {
+            const entry = button.parentElement;
+            const container = entry.parentElement;
+            entry.remove();
+            if (container.children.length === 0) addDistributionEntry(container.nextElementSibling, typeKey);
+            updateAllRemainingQuantities();
+        }
+
+        function splitSticker(row, index, typeKey) {
+            const isPair = row.querySelector('.sticker-status').textContent === '一对';
+            if (isPair) {
+                row.querySelector('.sticker-status').textContent = '单张 (1/2)';
+                row.querySelector('.split-btn').textContent = '-';
+
+                const newRowEl = document.createElement('tr');
+                populateTableRow(newRowEl, typeKey, `${index}-2`, { status: '单张 (2/2)' });
+
+                row.after(newRowEl);
+
+                const newRowInDOM = row.nextElementSibling;
+                if (newRowInDOM) {
+                    newRowInDOM.querySelector('.split-btn').textContent = '合并';
+                    newRowInDOM.querySelector('.split-btn').onclick = () => mergeSticker(row, newRowInDOM, typeKey);
+                }
+            }
+            updateAllTablePrices();
+        }
+
+        function mergeSticker(row1, row2, typeKey) {
+            row1.querySelector('.sticker-status').textContent = '一对';
+            row1.querySelector('.split-btn').textContent = '拆分';
+            const originalIndex = parseInt(row1.dataset.index.split('-')[0]);
+            row1.querySelector('.split-btn').onclick = () => splitSticker(row1, originalIndex, typeKey);
+            row2.remove();
+            updateAllTablePrices();
+        }
+
+        function splitBonusRow(button, typeKey) {
+            const row = button.closest('tr');
+            const tierInput = row.querySelector('input[data-type="kind"]');
+            const baseTierText = tierInput.value.split(' (')[0];
+            const customKind = row.querySelector('.custom-kind')?.value || '';
+            const parts = parseInt(prompt(`将“${baseTierText} - ${customKind || '未命名'}”拆分成几份？`, "2"), 10);
+            if (!parts || parts < 2) return;
+            const inputs = getInputs();
+            let fullOriginalValue = 0;
+            if (baseTierText.includes('一档')) fullOriginalValue = inputs.bonus1.value;
+            else if (baseTierText.includes('二档')) fullOriginalValue = inputs.bonus2.value;
+            else if (baseTierText.includes('三档') && inputs.bonus3.enabled) fullOriginalValue = inputs.bonus3.value;
+            const splitValue = fullOriginalValue / parts;
+            const baseIndex = row.dataset.index;
+            const originalRowIndex = row.rowIndex;
+            for (let i = 0; i < parts; i++) {
+                const newRow = row.parentElement.insertRow(originalRowIndex + i);
+                populateTableRow(newRow, typeKey, `${baseIndex}-${i}`, { tier: `${baseTierText} (${i + 1}/${parts})`, customKind: customKind, priceForDisplay: splitValue.toFixed(2), splitCount: parts });
+            }
+            row.remove();
+            updateAllTablePrices();
+        }
+
+        function updateAllTablePrices() {
+            let finalDiscountRate = parseFloat(document.getElementById('final-discount-rate').textContent);
+            if (isNaN(finalDiscountRate)) finalDiscountRate = 1.0;
+            const ceil2 = val => Math.ceil(val * 100) / 100;
+            const currentCalcInputs = getInputs();
+            const bonusValuesFromCalc = { '一档特典': currentCalcInputs.bonus1.value, '二档特典': currentCalcInputs.bonus2.value, '三档特典': currentCalcInputs.bonus3.enabled ? currentCalcInputs.bonus3.value : 0 };
+
+            Object.keys(itemTypes).forEach(typeKey => {
+                const itemConfig = itemTypes[typeKey];
+                const table = document.getElementById(`data-table-${typeKey}`);
+                if (!table) return;
+
+                let avgPrice = 0;
+                if (itemConfig.avgPriceId) avgPrice = parseFloat(document.getElementById(itemConfig.avgPriceId)?.textContent) || 0;
+                let totalAdj = 0;
+
+                table.querySelectorAll('tbody tr').forEach(row => {
+                    const adjPriceInput = row.querySelector('.adj-price');
+                    const adjPrice = adjPriceInput ? (parseFloat(adjPriceInput.value) || 0) : 0;
+                    if (typeKey === 'single') {
+                        const originalPrice = parseFloat(row.querySelector('input[data-type="price"]').value) || 0;
+                        row.querySelector('.final-price').textContent = ceil2(originalPrice * finalDiscountRate).toFixed(2);
+                    } else if (typeKey === 'bonus') {
+                        const tierInput = row.querySelector('input[data-type="kind"]');
+                        const tierText = tierInput ? tierInput.value : '';
+                        const baseTier = tierText.split(' (')[0];
+                        let originalBonusValueForThisTier = bonusValuesFromCalc[baseTier] || 0;
+                        const splitCount = parseInt(row.dataset.splitCount) || 1;
+                        const currentCalculatedValue = originalBonusValueForThisTier / splitCount;
+                        const valueDisplayInput = row.querySelector('input[data-type="price"]');
+                        if (valueDisplayInput) valueDisplayInput.value = currentCalculatedValue.toFixed(2);
+                        row.querySelector('.final-price').textContent = ceil2(currentCalculatedValue + adjPrice).toFixed(2);
+                        totalAdj += adjPrice;
+                    } else {
+                        let currentAvgPrice = avgPrice;
+                        if (itemConfig.isSticker) {
+                            const isSplit = row.querySelector('.sticker-status').textContent.includes('单张');
+                            currentAvgPrice = isSplit ? (parseFloat(document.getElementById('final-sticker-single-price').textContent) || 0) : (parseFloat(document.getElementById('final-sticker-pair-price').textContent) || 0);
+                        }
+                        const avgPriceCell = row.querySelector('.avg-price');
+                        if (avgPriceCell) avgPriceCell.textContent = currentAvgPrice.toFixed(2);
+
+                        totalAdj += adjPrice;
+                        row.querySelector('.final-price').textContent = ceil2(currentAvgPrice + adjPrice).toFixed(2);
+                    }
+                });
+                const warningSpan = document.getElementById(`调价提醒-${typeKey}`);
+                if (warningSpan) warningSpan.textContent = Math.abs(totalAdj) > 0.01 ? `调价总和不为0 (${totalAdj.toFixed(2)})` : '';
+            });
+            populateBonusTable();
+            updateAllRemainingQuantities();
+        }
+
+        function updateRowPrice(typeKey, element) {
+            const row = element.closest('tr');
+            if (!row) return;
+            let basePrice = 0;
+            let finalPriceCell = row.querySelector('.final-price');
+            const adjPrice = parseFloat(row.querySelector('.adj-price')?.value || 0);
+            const ceil2 = val => Math.ceil(val * 100) / 100;
+
+            if (typeKey === 'bonus') {
+                basePrice = parseFloat(row.querySelector('input[data-type="price"]').value) || 0;
+                finalPriceCell.textContent = ceil2(basePrice + adjPrice).toFixed(2);
+            } else if (typeKey === 'single') {
+                const originalPrice = parseFloat(row.querySelector('input[data-type="price"]').value) || 0;
+                let finalDiscountRate = parseFloat(document.getElementById('final-discount-rate').textContent);
+                if (isNaN(finalDiscountRate)) finalDiscountRate = 1.0;
+                basePrice = originalPrice * finalDiscountRate;
+                finalPriceCell.textContent = ceil2(basePrice).toFixed(2);
+            } else {
+                const avgPriceCell = row.querySelector('.avg-price');
+                if (avgPriceCell) basePrice = parseFloat(avgPriceCell.textContent) || 0;
+                finalPriceCell.textContent = ceil2(basePrice + adjPrice).toFixed(2);
+            }
+            let totalAdj = 0;
+            document.querySelectorAll(`#data-table-${typeKey} .adj-price`).forEach(input => totalAdj += parseFloat(input.value) || 0);
+            const warningSpan = document.getElementById(`调价提醒-${typeKey}`);
+            if (warningSpan) warningSpan.textContent = Math.abs(totalAdj) > 0.01 ? `调价总和不为0 (${totalAdj.toFixed(2)})` : '';
+        }
+
+        function populateBonusTable() {
+            const bonusTableBody = document.querySelector('#data-table-bonus tbody');
+            if (!bonusTableBody) return;
+            const existingBaseTiers = new Set();
+            bonusTableBody.querySelectorAll('input[data-type="kind"]').forEach(i => existingBaseTiers.add(i.value.split(' (')[0]));
+            const inputs = getInputs();
+            const addBonusRowIfNeeded = (tierName, value) => {
+                if (value > 0 && !existingBaseTiers.has(tierName)) {
+                    const newIndex = bonusTableBody.rows.length;
+                    const newRow = bonusTableBody.insertRow();
+                    populateTableRow(newRow, 'bonus', newIndex, { tier: tierName, customKind: '', priceForDisplay: value.toFixed(2), splitCount: 1 });
+                }
+            };
+            addBonusRowIfNeeded('一档特典', inputs.bonus1.value);
+            addBonusRowIfNeeded('二档特典', inputs.bonus2.value);
+            if (inputs.bonus3.enabled) addBonusRowIfNeeded('三档特典', inputs.bonus3.value);
+        }
+
+        function getDistributionFromInputs(row) {
+            const entries = {};
+            row.querySelectorAll('.dist-entry').forEach(entry => {
+                const name = entry.querySelector('.dist-name').value.trim();
+                const quantity = parseInt(entry.querySelector('.dist-quantity').value, 10) || 0;
+                // The key change is here: now it only checks for quantity > 0
+                if (quantity > 0) {
+                    // If the name is empty, use a placeholder so it's still counted and can be identified.
+                    const key = name || '（未分配）';
+                    entries[key] = (entries[key] || 0) + quantity;
+                }
+            });
+            return entries;
+        }
+
+        function calculatePageBill(typeKey) {
+            const table = document.getElementById(`data-table-${typeKey}`);
+            const outputDiv = document.getElementById(`page-bill-${typeKey}`);
+            const bill = {};
+            if (!table || !outputDiv) return;
+            table.querySelectorAll('tbody tr').forEach(row => {
+                let priceForBilling = parseFloat(row.querySelector('.final-price').textContent);
+                const distribution = getDistributionFromInputs(row);
+                for (const name in distribution) bill[name] = (bill[name] || 0) + (priceForBilling * distribution[name]);
+            });
+            let billText = '本页肾表:\n';
+            if (Object.keys(bill).length === 0) billText += '暂无数据';
+            else Object.entries(bill).sort().forEach(([name, amount]) => billText += `${name}: ${amount.toFixed(2)} 元\n`);
+            outputDiv.textContent = billText;
+        }
+
+        function calculateSummary() {
+            const totalBill = {};
+            const totalItems = {};
+            const inputs = getInputs();
+
+            Object.keys(itemTypes).forEach(typeKey => {
+                const itemConfig = itemTypes[typeKey];
+                const table = document.getElementById(`data-table-${typeKey}`);
+                if (!table) return;
+
+                table.querySelectorAll('tbody tr').forEach(row => {
+                    let priceForBilling = parseFloat(row.querySelector('.final-price').textContent);
+                    const distribution = getDistributionFromInputs(row);
+                    let itemName;
+                    const currentItemNameFromConfig = inputs[typeKey] ? inputs[typeKey].name : itemConfig.key;
+
+                    if (typeKey === 'single') {
+                        itemName = row.querySelector('input[data-type="kind"]').value;
+                    } else if (typeKey === 'bonus') {
+                        const tierName = row.querySelector('input[data-type="kind"]').value;
+                        const customName = row.querySelector('.custom-kind').value;
+                        itemName = customName ? `${tierName} - ${customName}` : tierName;
+                    } else if (itemConfig.isSticker) {
+                        const charName = row.querySelector('input[type="text"]').value || `角色${row.dataset.index}`;
+                        const status = row.querySelector('.sticker-status').textContent;
+                        itemName = `${currentItemNameFromConfig}-${charName} (${status})`;
+                    } else {
+                        const charNameInput = row.querySelector('input[placeholder="角色名..."]');
+                        const charName = charNameInput ? (charNameInput.value || `角色${row.dataset.index}`) : `项目${row.dataset.index}`;
+                        itemName = `${currentItemNameFromConfig}-${charName}`;
+                    }
+
+                    for (const person in distribution) {
+                        totalBill[person] = (totalBill[person] || 0) + (priceForBilling * distribution[person]);
+                        if (!totalItems[person]) totalItems[person] = [];
+                        totalItems[person].push(`${itemName} x ${distribution[person]}`);
+                    }
+                });
+            });
+            const billOutput = document.getElementById('total-bill-output');
+            let billText = '';
+            let actualTotal = 0;
+            if (Object.keys(totalBill).length === 0) billText = '请先在各分表中填写排表信息。';
+            else Object.entries(totalBill).sort().forEach(([person, amount]) => { billText += `${person}: ${amount.toFixed(2)} 元\n`; actualTotal += amount; });
+            billOutput.textContent = billText;
+            const itemsOutput = document.getElementById('total-items-output');
+            let itemsText = '';
+            if (Object.keys(totalItems).length === 0) itemsText = '请先在各分表中填写排表信息。';
+            else Object.keys(totalItems).sort().forEach(person => { itemsText += `--- ${person} ---\n${totalItems[person].join('\n')}\n\n`; });
+            itemsOutput.textContent = itemsText;
+            const totalAfterDiscount = parseFloat(document.getElementById('total-after-discount').textContent) || 0;
+            const totalBonusValue = parseFloat(document.getElementById('bonus-total-value').textContent) || 0;
+            const expectedTotal = totalAfterDiscount + totalBonusValue;
+            document.getElementById('expected-total').textContent = expectedTotal.toFixed(2);
+            document.getElementById('actual-total').textContent = actualTotal.toFixed(2);
+            const diff = expectedTotal - actualTotal;
+            const diffEl = document.getElementById('check-diff');
+            if (Math.abs(diff) < 0.02) { diffEl.textContent = '✅ 核对成功！账平啦！'; diffEl.style.color = 'var(--success-color)'; }
+            else { diffEl.textContent = `⚠️ 核对失败！差额: ${diff.toFixed(2)} 元。请检查调价、排表数量或最终折扣计算。`; diffEl.style.color = 'var(--accent-color)'; }
+            updateRemainingTable(); // 自动更新余量表
+        }
+
+        function updateAllRemainingQuantities() {
+            const inputs = getInputs();
+            const baseQuantities = {
+                bonus1: (inputs.bonus1.manual_count !== '' && inputs.bonus1.manual_count !== null) ? parseFloat(inputs.bonus1.manual_count) : (lastOrderPlan?.bonusCounts[1] || 0),
+                bonus2: (inputs.bonus2.manual_count !== '' && inputs.bonus2.manual_count !== null) ? parseFloat(inputs.bonus2.manual_count) : (lastOrderPlan?.bonusCounts[2] || 0),
+                bonus3: (inputs.bonus3.enabled && inputs.bonus3.manual_count !== '' && inputs.bonus3.manual_count !== null) ? parseFloat(inputs.bonus3.manual_count) : (inputs.bonus3.enabled ? (lastOrderPlan?.bonusCounts[3] || 0) : 0),
+            };
+
+            Object.keys(itemTypes).forEach(typeKey => {
+                const itemDef = itemTypes[typeKey];
+                if (!itemDef.isDynamicTabContent && inputs[typeKey] && typeof inputs[typeKey].sets !== 'undefined') {
+                    baseQuantities[typeKey] = inputs[typeKey].sets;
+                }
+            });
+
+            Object.keys(itemTypes).forEach(typeKey => {
+                const itemConfig = itemTypes[typeKey];
+
+                if (itemConfig.isDynamicTabContent && typeKey !== 'bonus') return;
+
+                const table = document.getElementById(`data-table-${typeKey}`);
+                if (!table) return;
+
+                table.querySelectorAll('tbody tr').forEach(row => {
+                    let baseQuantityForRow = 0;
+                    if (typeKey === 'bonus') {
+                        const tierText = row.querySelector('input[data-type="kind"]')?.value || '';
+                        if (tierText.includes('一档')) baseQuantityForRow = baseQuantities.bonus1;
+                        else if (tierText.includes('二档')) baseQuantityForRow = baseQuantities.bonus2;
+                        else if (tierText.includes('三档')) baseQuantityForRow = baseQuantities.bonus3;
+                    } else if (baseQuantities[typeKey] !== undefined) {
+                        baseQuantityForRow = baseQuantities[typeKey] || 0;
+                    }
+
+                    const distribution = getDistributionFromInputs(row);
+                    const totalDistributed = Object.values(distribution).reduce((sum, q) => sum + q, 0);
+                    const remaining = baseQuantityForRow - totalDistributed;
+                    const remainingCell = row.querySelector('.remaining-quantity');
+                    if (remainingCell) remainingCell.textContent = remaining;
+                });
+            });
+        }
+
+        function showExportOptions() { document.getElementById('export-options-modal').style.display = 'block'; }
+        function hideExportOptions() { document.getElementById('export-options-modal').style.display = 'none'; }
+        function showDataSyncModal() { document.getElementById('data-sync-modal').style.display = 'block'; }
+        function hideDataSyncModal() { document.getElementById('data-sync-modal').style.display = 'none'; }
+        function showLoadModal() {
+            const allSaves = JSON.parse(localStorage.getItem(SAVE_MANIFEST_KEY) || '{}');
+            const listContainer = document.getElementById('load-modal-list');
+            listContainer.innerHTML = '';
+
+            let slotNames = Object.keys(allSaves);
+
+            // Ensure default slot is always an option, even if it has no data saved yet.
+            if (!slotNames.includes(DEFAULT_SLOT_NAME)) {
+                slotNames.push(DEFAULT_SLOT_NAME);
+            }
+
+            if (slotNames.length === 0) { // Should not happen due to the logic above, but for safety.
+                listContainer.innerHTML = '<p style="text-align: center; color: var(--light-text-color);">没有找到任何档案。</p>';
+            } else {
+                const table = document.createElement('table');
+                table.style.width = '100%';
+                table.innerHTML = `<thead><tr><th style="text-align:left; padding: 4px;">档案名</th><th style="text-align:right; padding: 4px;">操作</th></tr></thead>`;
+                const tbody = document.createElement('tbody');
+
+                slotNames.sort((a, b) => {
+                    if (a === DEFAULT_SLOT_NAME) return -1;
+                    if (b === DEFAULT_SLOT_NAME) return 1;
+                    return a.localeCompare(b);
+                }).forEach(slotName => {
+                    const tr = document.createElement('tr');
+                    let displayName = slotName;
+                    if (slotName === currentSlotName) {
+                        displayName = `<strong>${slotName} (当前)</strong>`;
+                        tr.style.backgroundColor = 'rgba(168, 208, 230, 0.2)';
+                    }
+
+                    tr.innerHTML = `
+                <td style="padding: 8px 4px; vertical-align: middle;">${displayName}</td>
+                <td style="text-align: right; padding: 8px 4px; white-space: nowrap;">
+                    <button onclick="loadSlot('${slotName}')" style="margin-right: 5px; padding: 5px 10px; font-size: 0.9em;">读取</button>
+                    ${slotName !== DEFAULT_SLOT_NAME ? `<button onclick="deleteSlot('${slotName}')" class="remove-btn-text" style="color:var(--accent-color); font-size:1.2em; vertical-align:middle; padding: 5px;">×</button>` : ''}
+                </td>
+            `;
+                    tbody.appendChild(tr);
+                });
+                table.appendChild(tbody);
+                listContainer.appendChild(table);
+            }
+
+            document.getElementById('load-modal').style.display = 'block';
+        }
+        function hideLoadModal() { document.getElementById('load-modal').style.display = 'none'; }
+
+        function loadSlot(slotName) {
+            if (slotName === currentSlotName) {
+                hideLoadModal();
+                return;
+            }
+
+            // Explicitly save the current data before switching.
+            saveData(true, false); // The 'true' marks it as an auto-save, updating the timestamp. 'false' hides user feedback.
+
+            if (confirm(`当前存档【${currentSlotName}】已自动保存。确定要切换并读取档案【${slotName}】吗？`)) {
+                localStorage.setItem(ACTIVE_SLOT_KEY, slotName);
+                location.reload();
+            }
+        }
+
+        function deleteSlot(slotName) {
+            if (slotName === DEFAULT_SLOT_NAME) {
+                alert("不能删除默认档案。");
+                return;
+            }
+            if (confirm(`确定要永久删除档案 "${slotName}" 吗？此操作无法撤销。`)) {
+                const allSaves = JSON.parse(localStorage.getItem(SAVE_MANIFEST_KEY) || '{}');
+                delete allSaves[slotName];
+                localStorage.setItem(SAVE_MANIFEST_KEY, JSON.stringify(allSaves));
+
+                if (currentSlotName === slotName) {
+                    localStorage.setItem(ACTIVE_SLOT_KEY, DEFAULT_SLOT_NAME);
+                    location.reload();
+                } else {
+                    showLoadModal();
+                }
+            }
+        }
+
+        function downloadExcelWorkbook(workbook, fileName) {
+            if (typeof XLSX === 'undefined') { alert("错误：Excel导出库 (SheetJS) 未加载。"); return; }
+            try { XLSX.writeFile(workbook, fileName); }
+            catch (error) { console.error("导出Excel时发生错误:", error); alert("导出Excel失败，详情请查看控制台。"); }
+        }
+
+        function getCalculatorDataForExport() {
+            const data = [['项目', '值/状态']];
+            const sections = document.querySelectorAll('#calculator-section .calc-section');
+            sections.forEach(section => {
+                const header = section.querySelector('h3');
+                if (header) {
+                    let headerText = header.textContent.trim();
+                    const tooltipTrigger = header.querySelector('.tooltip-trigger');
+                    if (tooltipTrigger) {
+                        headerText = headerText.replace(tooltipTrigger.textContent, '').trim();
+                    }
+                    data.push([`【${headerText}】`, '']);
+                }
+
+                if (header && header.textContent.includes("本次开谷")) {
+                    Object.keys(itemTypes).forEach(typeKey => {
+                        const itemConfig = itemTypes[typeKey];
+                        if (itemConfig.isDynamicTabContent) return;
+
+                        const idPrefix = itemConfig.id_prefix;
+                        const nameLabelElement = document.getElementById(`${idPrefix}-price-label`);
+                        const nameLabel = nameLabelElement ? nameLabelElement.textContent.split(' - ')[0] : itemConfig.key;
+                        const priceVal = document.getElementById(`${idPrefix}-price-display`)?.textContent;
+                        const setsVal = document.getElementById(`${idPrefix}-sets-display`)?.textContent;
+                        if (priceVal !== undefined) data.push([`${nameLabel} - 价格`, priceVal]);
+                        if (setsVal !== undefined) data.push([`${nameLabel} - ${itemConfig.setsLabel || (itemConfig.hasSets ? '配数' : '')}`, setsVal]);
+                    });
+                }
+
+                section.querySelectorAll('.input-group').forEach(group => {
+                    const labelEl = group.querySelector('label');
+                    const inputEls = group.querySelectorAll('input[type="number"], input[type="text"], input[type="checkbox"]');
+
+                    let isHandledDisplayField = false;
+                    if (labelEl && labelEl.id) {
+                        Object.values(itemTypes).forEach(cfg => {
+                            if (!cfg.isDynamicTabContent && (labelEl.id === `${cfg.id_prefix}-price-label` || labelEl.id === `${cfg.id_prefix}-sets-label`)) {
+                                isHandledDisplayField = true;
+                            }
+                        });
+                    }
+                    if (isHandledDisplayField) return;
+
+                    if (labelEl && inputEls.length === 1) {
+                        const inputEl = inputEls[0];
+                        let labelText = labelEl.textContent.trim();
+                        if (labelEl.contains(inputEl)) {
+                            const tempLabel = labelEl.cloneNode(true);
+                            tempLabel.querySelectorAll('input').forEach(inp => inp.remove());
+                            labelText = tempLabel.textContent.trim();
+                        }
+                        data.push([labelText, inputEl.type === 'checkbox' ? (inputEl.checked ? '是' : '否') : inputEl.value]);
+                    } else if (labelEl && group.textContent.includes('每满') && group.textContent.includes('减')) {
+                        const inputsInGroup = group.querySelectorAll('input[type="number"]');
+                        if (inputsInGroup.length === 2) data.push([labelEl.textContent.trim(), `每满 ${inputsInGroup[0].value} 减 ${inputsInGroup[1].value}`]);
+                    }
+                });
+                section.querySelectorAll('#extra-discounts .input-group, #extra-coupons .input-group').forEach(group => {
+                    const labelEl = group.querySelector('label');
+                    const inputEl = group.querySelector('.extra-discount-input, .extra-coupon-input');
+                    if (labelEl && inputEl) data.push([labelEl.textContent.trim(), inputEl.value]);
+                });
+                section.querySelectorAll('p').forEach(p => {
+                    const textContent = p.textContent.trim();
+                    const valueEl = p.querySelector('.result-field, .final-result');
+                    if (valueEl) {
+                        let labelText = '';
+                        const nameSpan = p.querySelector('span[id$="-name-display"]');
+                        if (nameSpan) {
+                            labelText = nameSpan.textContent.trim() + textContent.substring(textContent.indexOf(nameSpan.textContent) + nameSpan.textContent.length, textContent.indexOf(valueEl.textContent)).trim().replace(/:$/, '');
+                        } else {
+                            labelText = textContent.substring(0, textContent.indexOf(valueEl.textContent)).trim().replace(/:$/, '');
+                        }
+                        if (labelText && !labelText.startsWith("具体参数在对应的排表处修改")) data.push([labelText, valueEl.textContent.trim()]);
+                    }
+                    else if (p.classList.contains('info-text') && p.id === 'bonus-gap-info' && textContent) data.push(['凑单建议', textContent]);
+                });
+            });
+            const orderPlanOutput = document.getElementById('order-plan-output');
+            if (orderPlanOutput && orderPlanOutput.textContent.trim() !== "请先填写上方信息，然后点击按钮生成方案...") {
+                data.push(['【下单方案】', '---']);
+                orderPlanOutput.textContent.split('\n').forEach(line => {
+                    const trimmedLine = line.trim();
+                    if (trimmedLine) {
+                        if (trimmedLine.startsWith('---') && trimmedLine.endsWith('---')) data.push([trimmedLine, '']);
+                        else if (trimmedLine.includes(':')) { const parts = trimmedLine.split(':'); data.push([parts[0].trim(), parts.slice(1).join(':').trim()]); }
+                        else data.push(['', trimmedLine]);
+                    }
+                });
+            }
+            return data;
+        }
+
+        function getTablesDataForExport() {
+            const allSheetsData = {};
+
+            orderedTypesForTabs.forEach(typeKey => {
+                const itemConfig = itemTypes[typeKey];
+                const currentItemName = itemConfig.key;
+                const sheetExportName = `排表-${currentItemName}`;
+
+                const sheetData = [];
+
+                if (!itemConfig.isDynamicTabContent) {
+                    const configHeader = document.querySelector(`#table-${typeKey} .item-config-header`);
+                    if (configHeader) {
+                        sheetData.push(['配置项', '值']);
+                        configHeader.querySelectorAll('.input-group').forEach(group => {
+                            const labelEl = group.querySelector('label');
+                            const inputEl = group.querySelector('input');
+                            if (labelEl && inputEl) {
+                                sheetData.push([labelEl.textContent, inputEl.value]);
+                            }
+                        });
+                        sheetData.push([]);
+                    }
+                }
+
+                const table = document.getElementById(`data-table-${typeKey}`);
+                if (!table) return;
+
+                const finalHeaderRow = [];
+                let distributionHeaderOriginalIndex = -1;
+                table.querySelectorAll('thead th').forEach((th, index) => {
+                    const thText = th.textContent.replace(/<span.*<\/span>/g, '').trim();
+                    if (thText === '排表') { finalHeaderRow.push('分配给', '数量'); distributionHeaderOriginalIndex = index; }
+                    else finalHeaderRow.push(thText);
+                });
+                sheetData.push(finalHeaderRow);
+                table.querySelectorAll('tbody tr').forEach(row => {
+                    const cells = Array.from(row.cells);
+                    const rowDataPrefix = []; const rowDataSuffix = []; let currentDistributionEntries = [];
+                    cells.forEach((td, cellIndex) => {
+                        if (td.classList.contains('distribution-cell')) {
+                            td.querySelectorAll('.dist-entry').forEach(entry => {
+                                const name = entry.querySelector('.dist-name').value.trim();
+                                const quantity = entry.querySelector('.dist-quantity').value.trim();
+                                if (name || (quantity && quantity !== "0")) currentDistributionEntries.push({ name, quantity });
+                            });
+                        } else {
+                            let cellValue = '';
+                            const input = td.querySelector('input[type="text"], input[type="number"]');
+                            if (input) cellValue = input.value;
+                            else if (td.classList.contains('sticker-status') || td.classList.contains('avg-price') || td.classList.contains('final-price') || td.classList.contains('remaining-quantity')) cellValue = td.textContent.trim();
+                            else { let textContent = td.cloneNode(true); textContent.querySelectorAll('button, span.warning-text').forEach(el => el.remove()); cellValue = textContent.textContent.trim(); }
+
+                            if (distributionHeaderOriginalIndex === -1 || cellIndex < distributionHeaderOriginalIndex) {
+                                rowDataPrefix.push(cellValue);
+                            } else if (cellIndex > distributionHeaderOriginalIndex) {
+                                rowDataSuffix.push(cellValue);
+                            }
+                        }
+                    });
+                    if (currentDistributionEntries.length > 0) {
+                        currentDistributionEntries.forEach(distEntry => sheetData.push([...rowDataPrefix, distEntry.name, distEntry.quantity, ...rowDataSuffix]));
+                    } else {
+                        const emptyDist = (distributionHeaderOriginalIndex !== -1) ? ['', ''] : [];
+                        sheetData.push([...rowDataPrefix, ...emptyDist, ...rowDataSuffix]);
+                    }
+                });
+                allSheetsData[sheetExportName] = sheetData;
+            });
+            return allSheetsData;
+        }
+
+        function getSummaryDataForExport() {
+            const sheets = {};
+            const placeholderText = "点击按钮计算..."; const emptyTableMsg = "请先在各分表中填写排表信息。";
+            const billOutputEl = document.getElementById('total-bill-output');
+            const billOutputText = billOutputEl ? billOutputEl.textContent : placeholderText;
+            const billData = [['团员', '金额 (元)']];
+            if (billOutputText.trim() !== placeholderText && billOutputText.trim() !== emptyTableMsg && billOutputText.trim() !== "") {
+                billOutputText.split('\n').forEach(line => {
+                    line = line.trim();
+                    if (line && line.includes(':')) { const parts = line.split(':'); const name = parts[0].trim(); const amountText = parts.slice(1).join(':').replace('元', '').trim(); billData.push([name, parseFloat(amountText) || 0]); }
+                });
+            }
+            sheets["总肾表"] = billData;
+            const itemsOutputEl = document.getElementById('total-items-output');
+            const itemsOutputText = itemsOutputEl ? itemsOutputEl.textContent : placeholderText;
+            const itemsData = [['团员', '物品', '数量']];
+            if (itemsOutputText.trim() !== placeholderText && itemsOutputText.trim() !== emptyTableMsg && itemsOutputText.trim() !== "") {
+                let currentPerson = null;
+                itemsOutputText.split('\n').forEach(line => {
+                    line = line.trim();
+                    if (line.startsWith('--- ') && line.endsWith(' ---')) currentPerson = line.substring(4, line.length - 4).trim();
+                    else if (currentPerson && line) { const parts = line.split(' x '); const itemName = parts[0].trim(); const quantityText = parts.length > 1 ? parts[1].trim() : '1'; itemsData.push([currentPerson, itemName, parseInt(quantityText, 10) || 1]); }
+                });
+            }
+            sheets["总排表"] = itemsData;
+            const checkData = [['项目', '值']];
+            document.querySelectorAll('#check-total-output p').forEach(p => {
+                let text = p.textContent.trim();
+                const span = p.querySelector('span.result-field');
+                if (span) { const label = text.substring(0, text.indexOf(span.textContent)).trim().replace(/:$/, ''); checkData.push([label, parseFloat(span.textContent) || 0]); }
+                else if (p.id === 'check-diff' && text) checkData.push(['核对信息', text]);
+            });
+            sheets["肾额核对"] = checkData;
+            return sheets;
+        }
+
+        function exportCalculatorData() {
+            const calcData = getCalculatorDataForExport();
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet(calcData);
+            const colWidths = calcData.reduce((acc, row) => { row.forEach((cell, i) => { const len = cell ? String(cell).length : 0; acc[i] = Math.max(acc[i] || 10, len + 2); }); return acc; }, []);
+            ws['!cols'] = colWidths.map(w => ({ wch: Math.min(w, 50) }));
+            XLSX.utils.book_append_sheet(wb, ws, "计算器数据");
+            downloadExcelWorkbook(wb, `开谷一体机-计算器.xlsx`);
+        }
+
+        function exportTablesData() {
+            const sheetsData = getTablesDataForExport();
+            const wb = XLSX.utils.book_new();
+            for (const sheetName in sheetsData) {
+                const ws = XLSX.utils.aoa_to_sheet(sheetsData[sheetName]);
+                if (sheetsData[sheetName].length > 0) {
+                    const colWidths = sheetsData[sheetName].reduce((acc, row) => { row.forEach((cell, i) => { const len = cell ? String(cell).length : 0; acc[i] = Math.max(acc[i] || 8, len + 1); }); return acc; }, []);
+                    ws['!cols'] = colWidths.map(w => ({ wch: Math.min(w, 40) }));
+                }
+                XLSX.utils.book_append_sheet(wb, ws, sheetName);
+            }
+            downloadExcelWorkbook(wb, `开谷一体机-排表.xlsx`);
+        }
+
+        function exportSummaryData() {
+            calculateSummary();
+            const sheetsData = getSummaryDataForExport();
+            const wb = XLSX.utils.book_new();
+            for (const sheetName in sheetsData) {
+                const ws = XLSX.utils.aoa_to_sheet(sheetsData[sheetName]);
+                if (sheetsData[sheetName].length > 0) {
+                    const colWidths = sheetsData[sheetName].reduce((acc, row) => { row.forEach((cell, i) => { const len = cell ? String(cell).length : 0; acc[i] = Math.max(acc[i] || 10, len + 2); }); return acc; }, []);
+                    ws['!cols'] = colWidths.map(w => ({ wch: Math.min(w, 50) }));
+                }
+                XLSX.utils.book_append_sheet(wb, ws, sheetName);
+            }
+            downloadExcelWorkbook(wb, `开谷一体机-肾表.xlsx`);
+        }
+
+        function exportAllData() {
+            const wb = XLSX.utils.book_new();
+            const calcData = getCalculatorDataForExport();
+            const wsCalc = XLSX.utils.aoa_to_sheet(calcData);
+            const calcColWidths = calcData.reduce((acc, row) => { row.forEach((cell, i) => { const len = cell ? String(cell).length : 0; acc[i] = Math.max(acc[i] || 10, len + 2); }); return acc; }, []);
+            wsCalc['!cols'] = calcColWidths.map(w => ({ wch: Math.min(w, 50) }));
+            XLSX.utils.book_append_sheet(wb, wsCalc, "计算器数据");
+
+            const tablesSheetsData = getTablesDataForExport();
+            for (const sheetName in tablesSheetsData) {
+                const wsTable = XLSX.utils.aoa_to_sheet(tablesSheetsData[sheetName]);
+                if (tablesSheetsData[sheetName].length > 0) {
+                    const tableColWidths = tablesSheetsData[sheetName].reduce((acc, row) => { row.forEach((cell, i) => { const len = cell ? String(cell).length : 0; acc[i] = Math.max(acc[i] || 8, len + 1); }); return acc; }, []);
+                    wsTable['!cols'] = tableColWidths.map(w => ({ wch: Math.min(w, 40) }));
+                }
+                XLSX.utils.book_append_sheet(wb, wsTable, sheetName);
+            }
+
+            calculateSummary();
+            const summarySheetsData = getSummaryDataForExport();
+            for (const sheetName in summarySheetsData) {
+                const wsSummary = XLSX.utils.aoa_to_sheet(summarySheetsData[sheetName]);
+                if (summarySheetsData[sheetName].length > 0) {
+                    const summaryColWidths = summarySheetsData[sheetName].reduce((acc, row) => { row.forEach((cell, i) => { const len = cell ? String(cell).length : 0; acc[i] = Math.max(acc[i] || 10, len + 2); }); return acc; }, []);
+                    wsSummary['!cols'] = summaryColWidths.map(w => ({ wch: Math.min(w, 50) }));
+                }
+                XLSX.utils.book_append_sheet(wb, wsSummary, sheetName);
+            }
+            downloadExcelWorkbook(wb, `开谷一体机-全部数据.xlsx`);
+        }
+
+        function getFormattedDateTime() {
+            const now = new Date();
+            const month = (now.getMonth() + 1).toString().padStart(2, '0');
+            const day = now.getDate().toString().padStart(2, '0');
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            return `${month}${day}${hours}${minutes}`;
+        }
+
+        function exportAllDataAsJson() {
+            const allSaves = JSON.parse(localStorage.getItem(SAVE_MANIFEST_KEY) || '{}');
+            const dataToExport = allSaves[currentSlotName];
+            if (!dataToExport) {
+                alert("当前存档没有数据可导出。请先进行一些操作。");
+                return;
+            }
+
+            const jsonDataString = JSON.stringify(dataToExport, null, 2);
+            const blob = new Blob([jsonDataString], { type: "application/json;charset=utf-8" });
+            const fileName = `KeichiETJ-${currentSlotName}-${getFormattedDateTime()}.json`;
+
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(link.href);
+            hideDataSyncModal();
+        }
+
+        function handleJsonFileImport(event) {
+            const file = event.target.files[0];
+            const importInput = document.getElementById('json-import-file');
+
+            if (!file) {
+                if (importInput) importInput.value = '';
+                hideDataSyncModal();
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const importedJson = JSON.parse(e.target.result);
+                    if (confirm(`导入数据将会覆盖当前存档【${currentSlotName}】的内容，确定吗？`)) {
+                        loadData(importedJson);
+                        alert('数据导入成功！');
+                        if (document.getElementById('tables-section').classList.contains('active') && orderedTypesForTabs.length > 0) {
+                            const firstValidTab = orderedTypesForTabs.find(key => itemTypes[key]);
+                            if (firstValidTab) showItemTab(firstValidTab);
+                        } else if (!document.querySelector('.tab-button.active')) {
+                            showTab('calculator-section');
+                        }
+                    }
+                } catch (error) {
+                    console.error("导入JSON文件失败:", error);
+                    alert("导入JSON文件失败。文件格式可能不正确或数据与当前版本不兼容。\n错误详情: " + error.message);
+                } finally {
+                    if (importInput) importInput.value = '';
+                    hideDataSyncModal();
+                }
+            };
+            reader.onerror = () => {
+                alert("读取文件时发生错误。");
+                if (importInput) importInput.value = '';
+                hideDataSyncModal();
+            };
+            reader.readAsText(file);
+        }
+
+        function addNewCustomItemType() {
+            dynamicItemCounter++;
+            const newTypeKey = `custom_item_${dynamicItemCounter}`;
+            const newItemName = prompt("请输入新商品类型的名称:", `自定义商品 ${dynamicItemCounter}`);
+
+            if (!newItemName) {
+                dynamicItemCounter--;
+                return;
+            }
+
+            itemTypes[newTypeKey] = {
+                id_prefix: newTypeKey,
+                key: newItemName,
+                defaults: { name: newItemName, price: '', chars: '0', sets: '0' },
+                avgPriceId: `final-${newTypeKey}-price`,
+                hasChars: true,
+                hasSets: true,
+                setsLabel: '配数',
+                isDynamic: true,
+                isSticker: false,
+                isDynamicTabContent: false
+            };
+
+            if (!orderedTypesForTabs.includes(newTypeKey)) {
+                const singleIdx = orderedTypesForTabs.indexOf('single');
+                const bonusIdx = orderedTypesForTabs.indexOf('bonus');
+                let insertAtIndex = orderedTypesForTabs.length;
+                if (singleIdx !== -1) insertAtIndex = singleIdx;
+                else if (bonusIdx !== -1) insertAtIndex = bonusIdx;
+
+                orderedTypesForTabs.splice(insertAtIndex, 0, newTypeKey);
+            }
+
+            const allSaves = JSON.parse(localStorage.getItem(SAVE_MANIFEST_KEY) || '{}');
+            const currentData = allSaves[currentSlotName];
+            const currentTablesData = currentData ? currentData.tables : {};
+
+            generateTables(currentTablesData);
+            calculateAll();
+            calculateSummary();
+            showItemTab(newTypeKey);
+            saveData(false);
+        }
+
+        function removeDynamicItemType(typeKeyToRemove) {
+            const itemConfigToRemove = itemTypes[typeKeyToRemove];
+            if (!itemConfigToRemove || !itemConfigToRemove.isDynamic) {
+                alert("无法删除非动态或不存在的商品类型。");
+                return;
+            }
+
+            if (confirm(`确定要删除商品类型 "${itemConfigToRemove.key}" 吗？其所有配置和排表数据都将丢失。`)) {
+                delete itemTypes[typeKeyToRemove];
+                orderedTypesForTabs = orderedTypesForTabs.filter(key => key !== typeKeyToRemove);
+
+                const tabButtonToRemove = document.querySelector(`.item-tab-button[data-tab="${typeKeyToRemove}"]`);
+                if (tabButtonToRemove) tabButtonToRemove.remove();
+
+                const tableContentToRemove = document.getElementById(`table-${typeKeyToRemove}`);
+                if (tableContentToRemove) tableContentToRemove.remove();
+
+                const idPrefix = typeKeyToRemove;
+                const openingDisplayParent = document.getElementById('dynamic-items-opening-display');
+                const finalDiscountDisplayParent = document.getElementById('dynamic-items-final-discount-display');
+
+                let hrToRemove = openingDisplayParent.querySelector(`hr[data-prefix="${idPrefix}"]`);
+                if (hrToRemove) hrToRemove.remove();
+
+                let priceGroupToRemove = document.getElementById(`${idPrefix}-price-label`)?.parentElement;
+                if (priceGroupToRemove && priceGroupToRemove.parentElement === openingDisplayParent) priceGroupToRemove.remove();
+
+                let setsGroupToRemove = document.getElementById(`${idPrefix}-sets-label`)?.parentElement;
+                if (setsGroupToRemove && setsGroupToRemove.parentElement === openingDisplayParent) setsGroupToRemove.remove();
+
+                let finalPricePToRemove = document.getElementById(`final-${idPrefix}-name-display`)?.parentElement;
+                if (finalPricePToRemove && finalPricePToRemove.parentElement === finalDiscountDisplayParent) finalPricePToRemove.remove();
+
+                calculateAll();
+                calculateSummary();
+                saveData(false);
+
+                const activeItemTabButton = document.querySelector('#item-tabs .item-tab-button.active');
+                if (!activeItemTabButton && document.getElementById('tables-section').classList.contains('active')) {
+                    if (orderedTypesForTabs.length > 0) {
+                        const firstValidTabKey = orderedTypesForTabs.find(key => itemTypes[key] && !itemTypes[key].isDynamicTabContent);
+                        const fallbackTabKey = orderedTypesForTabs.find(key => itemTypes[key]);
+                        if (firstValidTabKey) {
+                            showItemTab(firstValidTabKey);
+                        } else if (fallbackTabKey) {
+                            showItemTab(fallbackTabKey);
+                        } else {
+                            showTab('calculator-section');
+                        }
+                    } else {
+                        showTab('calculator-section');
+                    }
+                }
+            }
+        }
+        let allCharacterNames = new Set();
+        let allMemberNames = new Set();
+
+        function updateNameCaches() {
+            allCharacterNames.clear();
+            allMemberNames.clear();
+
+            document.querySelectorAll('input[placeholder="角色名..."]').forEach(input => {
+                if (input.value.trim()) {
+                    allCharacterNames.add(input.value.trim());
+                }
+            });
+
+            document.querySelectorAll('input.dist-name').forEach(input => {
+                if (input.value.trim()) {
+                    allMemberNames.add(input.value.trim());
+                }
+            });
+        }
+
+        function setupAutocomplete() {
+            const suggestionBox = document.getElementById('autocomplete-suggestions');
+            let activeSuggestionInput = null;
+            let activeSuggestionIndex = -1;
+
+            function showSuggestions(inputElement, nameSet, filter = '') {
+                const suggestions = [...nameSet].filter(name => name.toLowerCase().includes(filter.toLowerCase()));
+
+                if (suggestions.length === 0) {
+                    hideSuggestions();
+                    return;
+                }
+
+                suggestionBox.innerHTML = '';
+                suggestions.forEach(name => {
+                    const item = document.createElement('div');
+                    item.className = 'suggestion-item';
+                    item.textContent = name;
+                    item.addEventListener('mousedown', (e) => {
+                        e.preventDefault();
+                        inputElement.value = name;
+                        hideSuggestions();
+                        inputElement.dispatchEvent(new Event('input', { bubbles: true })); // Trigger updates
+                    });
+                    suggestionBox.appendChild(item);
+                });
+
+                const rect = inputElement.getBoundingClientRect();
+                suggestionBox.style.left = `${rect.left + window.scrollX}px`;
+                suggestionBox.style.top = `${rect.bottom + window.scrollY}px`;
+                suggestionBox.style.width = `${rect.width}px`;
+                suggestionBox.style.display = 'block';
+                activeSuggestionIndex = -1;
+            }
+
+            function hideSuggestions() {
+                suggestionBox.style.display = 'none';
+                activeSuggestionInput = null;
+            }
+
+            function handleKeyDown(e) {
+                if (!activeSuggestionInput || suggestionBox.style.display === 'none') return;
+
+                const items = suggestionBox.querySelectorAll('.suggestion-item');
+                if (items.length === 0) return;
+
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    activeSuggestionIndex = (activeSuggestionIndex + 1) % items.length;
+                    updateActiveSuggestion(items);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    activeSuggestionIndex = (activeSuggestionIndex - 1 + items.length) % items.length;
+                    updateActiveSuggestion(items);
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (activeSuggestionIndex > -1) {
+                        items[activeSuggestionIndex].dispatchEvent(new MouseEvent('mousedown'));
+                    }
+                    hideSuggestions();
+                } else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    hideSuggestions();
+                }
+            }
+
+            function updateActiveSuggestion(items) {
+                items.forEach(item => item.classList.remove('active'));
+                if (activeSuggestionIndex > -1) {
+                    items[activeSuggestionIndex].classList.add('active');
+                    items[activeSuggestionIndex].scrollIntoView({ block: 'nearest' });
+                }
+            }
+
+            document.addEventListener('focusin', (e) => {
+                const target = e.target;
+                let nameSet = null;
+
+                if (target.matches('input[placeholder="角色名..."]')) {
+                    nameSet = allCharacterNames;
+                } else if (target.matches('input.dist-name')) {
+                    nameSet = allMemberNames;
+                }
+
+                if (nameSet) {
+                    activeSuggestionInput = target;
+                    updateNameCaches();
+                    showSuggestions(target, nameSet, target.value);
+                }
+            });
+
+            document.addEventListener('input', (e) => {
+                if (e.target === activeSuggestionInput) {
+                    let nameSet = null;
+                    if (e.target.matches('input[placeholder="角色名..."]')) {
+                        nameSet = allCharacterNames;
+                    } else if (e.target.matches('input.dist-name')) {
+                        nameSet = allMemberNames;
+                    }
+                    if (nameSet) {
+                        showSuggestions(e.target, nameSet, e.target.value);
+                    }
+                }
+            });
+
+            document.addEventListener('click', (e) => {
+                if (e.target !== activeSuggestionInput && !suggestionBox.contains(e.target)) {
+                    hideSuggestions();
+                }
+            });
+
+            document.addEventListener('blur', (e) => {
+                if (e.target.matches('input[placeholder="角色名..."]') || e.target.matches('input.dist-name')) {
+                    updateNameCaches();
+                }
+            }, true);
+
+            document.addEventListener('keydown', handleKeyDown);
+        }
+        function updateRemainingTable() {
+            const outputDiv = document.getElementById('remaining-output');
+            const inputs = getInputs();
+
+            // 更新所有余量数值（确保数据是最新的）
+            updateAllRemainingQuantities();
+
+            const remainingData = {};
+
+            // 遍历所有商品类型
+            Object.keys(itemTypes).forEach(typeKey => {
+                const itemConfig = itemTypes[typeKey];
+
+                // 跳过动态标签内容（single和bonus在这里会特殊处理）
+                if (itemConfig.isDynamicTabContent) return;
+
+                const table = document.getElementById(`data-table-${typeKey}`);
+                if (!table) return;
+
+                const currentItemName = itemConfig.key;
+                remainingData[currentItemName] = [];
+
+                table.querySelectorAll('tbody tr').forEach(row => {
+                    const remainingCell = row.querySelector('.remaining-quantity');
+                    if (!remainingCell) return;
+
+                    const remainingValue = remainingCell.textContent.trim();
+                    if (remainingValue === 'N/A' || remainingValue === '') return;
+
+                    const remainingNum = parseFloat(remainingValue);
+                    if (isNaN(remainingNum) || remainingNum === 0) return; // 只显示非零余量
+
+                    let itemIdentifier = '';
+
+                    if (typeKey === 'bonus') {
+                        const tierInput = row.querySelector('input[data-type="kind"]');
+                        const customKind = row.querySelector('.custom-kind')?.value;
+                        const tierText = tierInput ? tierInput.value : '未知特典';
+                        itemIdentifier = customKind ? `${tierText} - ${customKind}` : tierText;
+                    } else if (typeKey === 'single') {
+                        const kindInput = row.querySelector('input[data-type="kind"]');
+                        itemIdentifier = kindInput ? kindInput.value : '未知种类';
+                    } else {
+                        const charNameInput = row.querySelector('input[placeholder="角色名..."]');
+                        itemIdentifier = charNameInput ? (charNameInput.value || `角色${row.dataset.index}`) : `项目${row.dataset.index}`;
+                    }
+
+                    remainingData[currentItemName].push({
+                        name: itemIdentifier,
+                        remaining: remainingNum
+                    });
+                });
+            });
+
+            // 生成HTML输出
+            let html = '';
+            let hasAnyRemaining = false;
+
+            Object.keys(remainingData).forEach(itemTypeName => {
+                const items = remainingData[itemTypeName];
+                if (items.length === 0) return;
+
+                hasAnyRemaining = true;
+                html += `<div class="calc-section" style="margin-bottom: 20px;">`;
+                html += `<h3 style="margin-top: 0;">${itemTypeName}</h3>`;
+                html += `<table style="width: 100%; border-collapse: collapse; margin-top: 10px;">`;
+                html += `<thead><tr><th style="text-align: left; padding: 8px; background-color: var(--highlight-bg); border: 1px solid var(--border-color);">项目</th>`;
+                html += `<th style="text-align: center; padding: 8px; background-color: var(--highlight-bg); border: 1px solid var(--border-color); width: 100px;">余量</th></tr></thead>`;
+                html += `<tbody>`;
+
+                items.forEach(item => {
+                    const remainingClass = item.remaining > 0 ? 'style="color: var(--success-color); font-weight: bold;"' :
+                        item.remaining < 0 ? 'style="color: var(--accent-color); font-weight: bold;"' : '';
+                    html += `<tr>`;
+                    html += `<td style="padding: 8px; border: 1px solid var(--border-color);">${item.name}</td>`;
+                    html += `<td style="text-align: center; padding: 8px; border: 1px solid var(--border-color);" ${remainingClass}>${item.remaining}</td>`;
+                    html += `</tr>`;
+                });
+
+                html += `</tbody></table></div>`;
+            });
+
+            if (!hasAnyRemaining) {
+                html = '<p style="color: var(--light-text-color); text-align: center; font-style: italic; margin-top: 20px;">暂无余量数据，或所有商品余量均为0。</p>';
+            }
+
+            outputDiv.innerHTML = html;
+        }
+        function copyToClipboard(elementId, buttonElement) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+
+            let textToCopy = element.innerText || element.textContent;
+
+            // 对于HTML表格，提取纯文本
+            if (element.querySelector('table')) {
+                textToCopy = '';
+                const tables = element.querySelectorAll('table');
+                const headers = element.querySelectorAll('h3');
+
+                let headerIndex = 0;
+                tables.forEach(table => {
+                    if (headers[headerIndex]) {
+                        textToCopy += headers[headerIndex].textContent.trim() + '\n';
+                        headerIndex++;
+                    }
+
+                    table.querySelectorAll('tr').forEach(row => {
+                        const cells = row.querySelectorAll('th, td');
+                        const rowText = Array.from(cells).map(cell => cell.textContent.trim()).join('\t');
+                        textToCopy += rowText + '\n';
+                    });
+                    textToCopy += '\n';
+                });
+            }
+
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                const originalText = buttonElement.textContent;
+                buttonElement.textContent = '✅ 已复制';
+                buttonElement.classList.add('copied');
+
+                setTimeout(() => {
+                    buttonElement.textContent = originalText;
+                    buttonElement.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('复制失败:', err);
+                alert('复制失败，请手动选择并复制。');
+            });
+        }
+
+    </script>
+    <div id="autocomplete-suggestions"></div>
+</body>
+
+</html>
