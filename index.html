@@ -769,15 +769,16 @@
         /* QR Code Image Container with Delete Button */
         .qr-image-wrapper {
             position: relative;
-            display: inline-block;
-            max-width: 48%;
-            flex-grow: 1;
+            width: 100%;
+            /* 图片宽度占满容器 */
+            margin-bottom: 10px;
+            /* 多图时增加间距 */
         }
 
         .qr-image-wrapper img {
             width: 100%;
             height: auto;
-            max-height: 300px;
+            /* max-height: 300px;  移除了高度限制，让图片更大 */
             border-radius: var(--border-radius);
             border: 1px solid var(--border-color);
             object-fit: contain;
@@ -801,8 +802,19 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: background-color 0.2s;
+            transition: background-color 0.2s, opacity 0.2s;
             padding: 0;
+            opacity: 0;
+            /* 默认隐藏 */
+            pointer-events: none;
+            /* 默认不可点击 */
+        }
+
+        .qr-image-wrapper:hover .qr-delete-button {
+            opacity: 1;
+            /* 悬浮时显示 */
+            pointer-events: auto;
+            /* 悬浮时可点击 */
         }
 
         .qr-delete-button:hover {
@@ -3619,14 +3631,16 @@
             Object.keys(itemTypes).forEach(typeKey => {
                 const itemConfig = itemTypes[typeKey];
 
-                // 跳过动态标签内容（single和bonus在这里会特殊处理）
-                if (itemConfig.isDynamicTabContent) return;
+                // 修改点：只跳过'single'，因为它没有余量概念，让'bonus'可以被处理
+                if (typeKey === 'single') return;
 
                 const table = document.getElementById(`data-table-${typeKey}`);
                 if (!table) return;
 
                 const currentItemName = itemConfig.key;
-                remainingData[currentItemName] = [];
+                if (!remainingData[currentItemName]) {
+                    remainingData[currentItemName] = [];
+                }
 
                 table.querySelectorAll('tbody tr').forEach(row => {
                     const remainingCell = row.querySelector('.remaining-quantity');
@@ -3646,6 +3660,7 @@
                         const tierText = tierInput ? tierInput.value : '未知特典';
                         itemIdentifier = customKind ? `${tierText} - ${customKind}` : tierText;
                     } else if (typeKey === 'single') {
+                        // 这段逻辑现在不会被执行，但保留以防万一
                         const kindInput = row.querySelector('input[data-type="kind"]');
                         itemIdentifier = kindInput ? kindInput.value : '未知种类';
                     } else {
@@ -3694,6 +3709,7 @@
 
             outputDiv.innerHTML = html;
         }
+
         function copyToClipboard(elementId, buttonElement) {
             const element = document.getElementById(elementId);
             if (!element) return;
