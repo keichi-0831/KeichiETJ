@@ -3381,6 +3381,15 @@
             let activeSuggestionInput = null;
             let activeSuggestionIndex = -1;
 
+            // 新增：一个专门用来重新定位补全框的函数
+            function repositionSuggestionBox() {
+                if (!activeSuggestionInput) return; // 如果没有激活的输入框，则什么都不做
+                const rect = activeSuggestionInput.getBoundingClientRect();
+                suggestionBox.style.left = `${rect.left}px`;
+                suggestionBox.style.top = `${rect.bottom}px`;
+                suggestionBox.style.width = `${rect.width}px`;
+            }
+
             function showSuggestions(inputElement, nameSet, filter = '') {
                 const suggestions = [...nameSet].filter(name => name.toLowerCase().includes(filter.toLowerCase()));
 
@@ -3398,16 +3407,12 @@
                         e.preventDefault();
                         inputElement.value = name;
                         hideSuggestions();
-                        inputElement.dispatchEvent(new Event('input', { bubbles: true })); // Trigger updates
+                        inputElement.dispatchEvent(new Event('input', { bubbles: true }));
                     });
                     suggestionBox.appendChild(item);
                 });
 
-                const rect = inputElement.getBoundingClientRect();
-                // 因为使用了 position:fixed，定位逻辑直接使用 getBoundingClientRect 的结果
-                suggestionBox.style.left = `${rect.left}px`;
-                suggestionBox.style.top = `${rect.bottom}px`;
-                suggestionBox.style.width = `${rect.width}px`;
+                repositionSuggestionBox(); // 使用新的定位函数来设置位置
                 suggestionBox.style.display = 'block';
                 activeSuggestionIndex = -1;
             }
@@ -3477,7 +3482,7 @@
                         nameSet = allMemberNames;
                     }
                     if (nameSet) {
-                        showSuggestions(e.target, e.target.value);
+                        showSuggestions(e.target, nameSet, e.target.value);
                     }
                 }
             });
@@ -3495,7 +3500,17 @@
             }, true);
 
             document.addEventListener('keydown', handleKeyDown);
+
+            // 新增：监听滚动和窗口大小变化事件
+            const updatePositionOnScrollOrResize = () => {
+                if (suggestionBox.style.display === 'block') {
+                    repositionSuggestionBox();
+                }
+            };
+            window.addEventListener('scroll', updatePositionOnScrollOrResize, true);
+            window.addEventListener('resize', updatePositionOnScrollOrResize);
         }
+
 
 
         function updateRemainingTable() {
