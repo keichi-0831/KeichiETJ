@@ -818,7 +818,12 @@
                 <div class="calc-section full-width">
                     <h3>最终折扣 <span class="tooltip-trigger" data-tooltip-target="final-discount-tooltip">?</span></h3>
                     <div class="tooltip-content" id="final-discount-tooltip"></div>
-                    <p>最终折扣: <span id="final-discount-rate" class="final-result">N/A</span></p>
+                    <p>计算出的最终折扣: <span id="final-discount-rate" class="final-result">N/A</span></p>
+                    <div class="input-group" style="margin-top: 10px; margin-bottom: 20px;">
+                        <label for="custom-final-discount">自定义最终折扣 (例如: 0.5)</label>
+                        <input type="number" id="custom-final-discount" placeholder="留空则按计算结果" step="0.0001"
+                            oninput="calculateAll()">
+                    </div>
                     <p><span id="final-postcard-name-display">皮肤明信片</span>均价: <span id="final-postcard-price"
                             class="result-field">0.00</span> 元</p>
                     <p><span id="final-resume-name-display">人事部简历</span>均价: <span id="final-resume-price"
@@ -1979,10 +1984,21 @@
             const totalAfterDiscountResult = currentPrice + lastOrderPlan.totalShippingFee - totalBonusValueForDiscount;
 
             document.getElementById('total-after-discount').textContent = totalAfterDiscountResult.toFixed(2);
-            const finalDiscountRate = totalBeforeDiscount > 0 ? totalAfterDiscountResult / totalBeforeDiscount : 1;
-            document.getElementById('final-discount-rate').textContent = totalBeforeDiscount > 0 ? finalDiscountRate.toFixed(4) : 'N/A';
 
-            updateFinalPrices(finalDiscountRate, inputs);
+            // 1. 计算并显示原始的折扣率
+            const calculatedFinalDiscountRate = totalBeforeDiscount > 0 ? totalAfterDiscountResult / totalBeforeDiscount : 1;
+            document.getElementById('final-discount-rate').textContent = totalBeforeDiscount > 0 ? calculatedFinalDiscountRate.toFixed(4) : 'N/A';
+
+            // 2. 获取有效的折扣率（优先使用自定义的）
+            const customDiscountInput = document.getElementById('custom-final-discount');
+            const customDiscountVal = customDiscountInput ? parseFloat(customDiscountInput.value) : NaN;
+
+            const effectiveFinalDiscountRate = (customDiscountInput && customDiscountInput.value.trim() !== '' && !isNaN(customDiscountVal) && customDiscountVal > 0)
+                ? customDiscountVal
+                : calculatedFinalDiscountRate;
+
+            // 3. 使用有效的折扣率进行后续计算
+            updateFinalPrices(effectiveFinalDiscountRate, inputs);
             updateBonusGapInfo(totalBeforeDiscount, inputs, lastOrderPlan);
             updateAllTablePrices();
         }
@@ -2601,8 +2617,18 @@
         }
 
         function updateAllTablePrices() {
-            let finalDiscountRate = parseFloat(document.getElementById('final-discount-rate').textContent);
-            if (isNaN(finalDiscountRate)) finalDiscountRate = 1.0;
+            // 获取有效的折扣率（优先使用自定义的）
+            const customDiscountInput = document.getElementById('custom-final-discount');
+            const customDiscountVal = customDiscountInput ? parseFloat(customDiscountInput.value) : NaN;
+            let finalDiscountRate;
+
+            if (customDiscountInput && customDiscountInput.value.trim() !== '' && !isNaN(customDiscountVal) && customDiscountVal > 0) {
+                finalDiscountRate = customDiscountVal;
+            } else {
+                const calculatedDiscount = parseFloat(document.getElementById('final-discount-rate').textContent);
+                finalDiscountRate = isNaN(calculatedDiscount) ? 1.0 : calculatedDiscount;
+            }
+
             const ceil2 = val => Math.ceil(val * 100) / 100;
             const currentCalcInputs = getInputs();
             const bonusValuesFromCalc = { '一档特典': currentCalcInputs.bonus1.value, '二档特典': currentCalcInputs.bonus2.value, '三档特典': currentCalcInputs.bonus3.enabled ? currentCalcInputs.bonus3.value : 0 };
@@ -2666,8 +2692,19 @@
                 finalPriceCell.textContent = ceil2(basePrice + adjPrice).toFixed(2);
             } else if (typeKey === 'single') {
                 const originalPrice = parseFloat(row.querySelector('input[data-type="price"]').value) || 0;
-                let finalDiscountRate = parseFloat(document.getElementById('final-discount-rate').textContent);
-                if (isNaN(finalDiscountRate)) finalDiscountRate = 1.0;
+
+                // 获取有效的折扣率（优先使用自定义的）
+                const customDiscountInput = document.getElementById('custom-final-discount');
+                const customDiscountVal = customDiscountInput ? parseFloat(customDiscountInput.value) : NaN;
+                let finalDiscountRate;
+
+                if (customDiscountInput && customDiscountInput.value.trim() !== '' && !isNaN(customDiscountVal) && customDiscountVal > 0) {
+                    finalDiscountRate = customDiscountVal;
+                } else {
+                    const calculatedDiscount = parseFloat(document.getElementById('final-discount-rate').textContent);
+                    finalDiscountRate = isNaN(calculatedDiscount) ? 1.0 : calculatedDiscount;
+                }
+
                 basePrice = originalPrice * finalDiscountRate;
                 finalPriceCell.textContent = ceil2(basePrice).toFixed(2);
             } else {
